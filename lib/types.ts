@@ -1,3 +1,11 @@
+// wall_connector_state: 0=disconnected, 1=available, 2=connected/waiting, 3=charging, 4=complete
+export interface WallConnector {
+  wall_connector_id: string
+  wall_connector_state: 0 | 1 | 2 | 3 | 4
+  wall_connector_power: number
+  vin?: string
+}
+
 export interface LiveStatus {
   solar_power: number
   battery_power: number
@@ -11,6 +19,7 @@ export interface LiveStatus {
   backup_reserve_percent: number
   operation: "autonomous" | "backup" | "self_consumption" | "savings"
   timestamp: string
+  wall_connectors?: WallConnector[]
 }
 
 export interface SiteInfo {

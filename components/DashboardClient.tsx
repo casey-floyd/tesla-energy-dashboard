@@ -9,6 +9,7 @@ import { PowerFlowDiagram } from "@/components/PowerFlowDiagram"
 import { ProductionChart } from "@/components/ProductionChart"
 import { SiteInfoPanel } from "@/components/SiteInfoPanel"
 import { ThemeToggle } from "@/components/ThemeToggle"
+import { WallConnectorPanel } from "@/components/WallConnectorPanel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useLiveData } from "@/hooks/useLiveData"
 import type { CalendarHistory, HistoryPeriod, SiteInfo } from "@/lib/types"
@@ -24,10 +25,11 @@ const PERIODS: { label: string; value: HistoryPeriod }[] = [
   { label: "Year", value: "year" },
 ]
 
-type PanelId = "live-metrics" | "power-battery" | "production" | "history-mix" | "site-details"
+type PanelId = "live-metrics" | "power-battery" | "wall-connector" | "production" | "history-mix" | "site-details"
 const DEFAULT_PANELS: PanelId[] = [
   "live-metrics",
   "power-battery",
+  "wall-connector",
   "production",
   "history-mix",
   "site-details",
@@ -180,6 +182,13 @@ export function DashboardClient({ preConfigured }: Props) {
                 </CardContent>
               </Card>
             </div>
+          </DraggablePanel>
+        )
+
+      case "wall-connector":
+        return (
+          <DraggablePanel key={panelId} panelId={panelId}>
+            <WallConnectorPanel data={liveData} loading={liveLoading || siteLoading} />
           </DraggablePanel>
         )
 
