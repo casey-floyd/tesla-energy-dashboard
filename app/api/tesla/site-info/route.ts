@@ -1,10 +1,10 @@
-import { auth } from "@/lib/auth"
+import { resolveAccessToken } from "@/lib/api-utils"
 import { getEnergySiteId, getSiteInfo } from "@/lib/tesla-api"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
-  const session = await auth()
-  if (!session?.accessToken) {
+  const accessToken = await resolveAccessToken()
+  if (!accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -13,12 +13,12 @@ export async function GET(request: Request) {
 
   try {
     if (!siteId) {
-      siteId = await getEnergySiteId(session.accessToken)
+      siteId = await getEnergySiteId(accessToken)
       if (!siteId) {
         return NextResponse.json({ error: "No energy site found" }, { status: 404 })
       }
     }
-    const info = await getSiteInfo(session.accessToken, siteId)
+    const info = await getSiteInfo(accessToken, siteId)
     return NextResponse.json({ siteId, info })
   } catch (error) {
     return NextResponse.json(

@@ -1,11 +1,11 @@
-import { auth } from "@/lib/auth"
+import { resolveAccessToken } from "@/lib/api-utils"
 import { getCalendarHistory } from "@/lib/tesla-api"
 import type { HistoryPeriod } from "@/lib/types"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
-  const session = await auth()
-  if (!session?.accessToken) {
+  const accessToken = await resolveAccessToken()
+  if (!accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const data = await getCalendarHistory(session.accessToken, Number(siteId), period, timezone)
+    const data = await getCalendarHistory(accessToken, Number(siteId), period, timezone)
     return NextResponse.json(data)
   } catch (error) {
     return NextResponse.json(

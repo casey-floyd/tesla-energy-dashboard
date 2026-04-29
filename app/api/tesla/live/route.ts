@@ -1,10 +1,10 @@
-import { auth } from "@/lib/auth"
+import { resolveAccessToken } from "@/lib/api-utils"
 import { getLiveStatus } from "@/lib/tesla-api"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
-  const session = await auth()
-  if (!session?.accessToken) {
+  const accessToken = await resolveAccessToken()
+  if (!accessToken) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const data = await getLiveStatus(session.accessToken, Number(siteId))
+    const data = await getLiveStatus(accessToken, Number(siteId))
     return NextResponse.json(data)
   } catch (error) {
     return NextResponse.json(
