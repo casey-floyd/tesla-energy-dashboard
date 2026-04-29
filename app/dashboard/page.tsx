@@ -90,6 +90,15 @@ export default function DashboardPage() {
               <h1 className="text-sm font-semibold text-slate-800">{siteName}</h1>
               <p className="text-[10px] text-slate-400">Tesla Energy</p>
             </div>
+            {liveData && !liveLoading && (
+              <div className="flex items-center gap-1.5 ml-1">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                </span>
+                <span className="text-[10px] text-emerald-500 font-medium">Live</span>
+              </div>
+            )}
           </div>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}

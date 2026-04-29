@@ -3,7 +3,7 @@
 import type { LiveStatus } from "@/lib/types"
 import { useCallback, useEffect, useRef, useState } from "react"
 
-const POLL_INTERVAL = 30_000
+const POLL_INTERVAL = 5_000
 
 export function useLiveData(siteId: number | null) {
   const [data, setData] = useState<LiveStatus | null>(null)
