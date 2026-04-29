@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+# Allow Tesla domain verification public key (private key stays local)
+!public/.well-known/appspecific/com.tesla.3p.public-key.pem
 
 # debug
 npm-debug.log*
