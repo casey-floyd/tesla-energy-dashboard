@@ -1,0 +1,251 @@
+"use client"
+
+import type { LiveStatus } from "@/lib/types"
+import { motion } from "framer-motion"
+
+function formatWatts(w: number): string {
+  const abs = Math.abs(w)
+  if (abs >= 1000) return `${(abs / 1000).toFixed(1)} kW`
+  return `${Math.round(abs)} W`
+}
+
+interface NodeProps {
+  x: number
+  y: number
+  icon: string
+  label: string
+  value: string
+  color: string
+  bgColor: string
+  borderColor: string
+}
+
+function Node({ x, y, icon, label, value, bgColor, borderColor }: NodeProps) {
+  return (
+    <foreignObject x={x - 44} y={y - 44} width={88} height={88}>
+      <div
+        className={`w-full h-full rounded-2xl border-2 ${bgColor} ${borderColor} flex flex-col items-center justify-center shadow-sm`}
+      >
+        <span className="text-2xl">{icon}</span>
+        <span className="text-[10px] font-medium text-slate-500 mt-0.5">{label}</span>
+        <span className="text-[11px] font-bold text-slate-700">{value}</span>
+      </div>
+    </foreignObject>
+  )
+}
+
+interface FlowArrowProps {
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+  active: boolean
+  color: string
+  reversed?: boolean
+  label?: string
+}
+
+function FlowArrow({ x1, y1, x2, y2, active, color, reversed, label }: FlowArrowProps) {
+  const mx = (x1 + x2) / 2
+  const my = (y1 + y2) / 2
+
+  if (!active) {
+    return (
+      <line
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
+        stroke="#e2e8f0"
+        strokeWidth={2}
+        strokeDasharray="4 4"
+      />
+    )
+  }
+
+  const dx = x2 - x1
+  const dy = y2 - y1
+  const len = Math.sqrt(dx * dx + dy * dy)
+  const ux = dx / len
+  const uy = dy / len
+
+  const particles = [0, 0.33, 0.66]
+
+  return (
+    <g>
+      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth={2.5} strokeOpacity={0.3} />
+      {particles.map((offset, i) => (
+        <motion.circle
+          key={i}
+          r={4}
+          fill={color}
+          initial={{ x: reversed ? x2 : x1, y: reversed ? y2 : y1 }}
+          animate={{
+            x: [
+              reversed ? x2 : x1,
+              reversed ? x2 + (x1 - x2) * 0.33 : x1 + dx * 0.33,
+              reversed ? x2 + (x1 - x2) * 0.66 : x1 + dx * 0.66,
+              reversed ? x1 : x2,
+            ],
+            y: [
+              reversed ? y2 : y1,
+              reversed ? y2 + (y1 - y2) * 0.33 : y1 + dy * 0.33,
+              reversed ? y2 + (y1 - y2) * 0.66 : y1 + dy * 0.66,
+              reversed ? y1 : y2,
+            ],
+          }}
+          transition={{
+            duration: 1.8,
+            repeat: Infinity,
+            delay: offset * 1.8,
+            ease: "linear",
+          }}
+        />
+      ))}
+      {label && (
+        <text
+          x={mx}
+          y={my - 8}
+          textAnchor="middle"
+          fontSize={10}
+          fontWeight={600}
+          fill={color}
+          className="select-none"
+        >
+          {label}
+        </text>
+      )}
+    </g>
+  )
+}
+
+interface Props {
+  data: LiveStatus | null
+  loading?: boolean
+}
+
+export function PowerFlowDiagram({ data, loading }: Props) {
+  if (loading || !data) {
+    return (
+      <div className="w-full h-64 flex items-center justify-center">
+        <div className="w-full h-full bg-slate-50 animate-pulse rounded-2xl" />
+      </div>
+    )
+  }
+
+  const solarActive = data.solar_power > 50
+  const batteryCharging = data.battery_power > 50
+  const batteryDischarging = data.battery_power < -50
+  const gridImporting = data.grid_power > 50
+  const gridExporting = data.grid_power < -50
+
+  const W = 340
+  const H = 240
+
+  const sunX = 70, sunY = 60
+  const homeX = 270, homeY = 60
+  const battX = 70, battY = 180
+  const gridX = 270, gridY = 180
+
+  return (
+    <div className="w-full overflow-x-auto">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full max-w-sm mx-auto" style={{ minWidth: 280 }}>
+        <FlowArrow
+          x1={sunX + 44}
+          y1={sunY}
+          x2={homeX - 44}
+          y2={homeY}
+          active={solarActive}
+          color="#F59E0B"
+          label={solarActive ? formatWatts(data.solar_power) : undefined}
+        />
+        <FlowArrow
+          x1={sunX}
+          y1={sunY + 44}
+          x2={battX}
+          y2={battY - 44}
+          active={batteryCharging && solarActive}
+          color="#10B981"
+          label={batteryCharging ? formatWatts(Math.abs(data.battery_power)) : undefined}
+        />
+        <FlowArrow
+          x1={battX + 44}
+          y1={battY}
+          x2={homeX - 44}
+          y2={homeY + 44}
+          active={batteryDischarging}
+          color="#10B981"
+          label={batteryDischarging ? formatWatts(Math.abs(data.battery_power)) : undefined}
+          reversed={false}
+        />
+        <FlowArrow
+          x1={homeX}
+          y1={homeY + 44}
+          x2={gridX}
+          y2={gridY - 44}
+          active={gridImporting || gridExporting}
+          color={gridExporting ? "#6366F1" : "#64748B"}
+          reversed={gridExporting}
+          label={
+            gridImporting || gridExporting
+              ? formatWatts(Math.abs(data.grid_power))
+              : undefined
+          }
+        />
+
+        <Node
+          x={sunX}
+          y={sunY}
+          icon="☀️"
+          label="Solar"
+          value={formatWatts(data.solar_power)}
+          color="#F59E0B"
+          bgColor="bg-amber-50"
+          borderColor="border-amber-200"
+        />
+        <Node
+          x={homeX}
+          y={homeY}
+          icon="🏠"
+          label="Home"
+          value={formatWatts(data.load_power)}
+          color="#0EA5E9"
+          bgColor="bg-sky-50"
+          borderColor="border-sky-200"
+        />
+        <Node
+          x={battX}
+          y={battY}
+          icon="🔋"
+          label={`${Math.round(data.battery_percentage)}%`}
+          value={
+            batteryCharging
+              ? `+${formatWatts(data.battery_power)}`
+              : batteryDischarging
+                ? formatWatts(data.battery_power)
+                : "Idle"
+          }
+          color="#10B981"
+          bgColor="bg-emerald-50"
+          borderColor="border-emerald-200"
+        />
+        <Node
+          x={gridX}
+          y={gridY}
+          icon="⚡"
+          label="Grid"
+          value={
+            gridImporting
+              ? `↓ ${formatWatts(data.grid_power)}`
+              : gridExporting
+                ? `↑ ${formatWatts(Math.abs(data.grid_power))}`
+                : "Idle"
+          }
+          color={gridExporting ? "#6366F1" : "#64748B"}
+          bgColor={gridExporting ? "bg-indigo-50" : "bg-slate-50"}
+          borderColor={gridExporting ? "border-indigo-200" : "border-slate-200"}
+        />
+      </svg>
+    </div>
+  )
+}

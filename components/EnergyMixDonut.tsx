@@ -1,0 +1,99 @@
+"use client"
+
+import type { EnergyHistoryEntry } from "@/lib/types"
+import { useMemo } from "react"
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
+
+interface Props {
+  entries: EnergyHistoryEntry[]
+  loading?: boolean
+}
+
+function formatKwh(wh: number): string {
+  return `${(wh / 1000).toFixed(1)} kWh`
+}
+
+const COLORS = {
+  Solar: "#F59E0B",
+  Battery: "#10B981",
+  Grid: "#94A3B8",
+}
+
+export function EnergyMixDonut({ entries, loading }: Props) {
+  const totals = useMemo(() => {
+    const fromSolar = entries.reduce((s, e) => s + (e.consumer_energy_imported_from_solar ?? 0), 0)
+    const fromBattery = entries.reduce(
+      (s, e) => s + (e.consumer_energy_imported_from_battery ?? 0),
+      0,
+    )
+    const fromGrid = entries.reduce((s, e) => s + (e.consumer_energy_imported_from_grid ?? 0), 0)
+    return { fromSolar, fromBattery, fromGrid }
+  }, [entries])
+
+  const total = totals.fromSolar + totals.fromBattery + totals.fromGrid
+
+  const data = [
+    { name: "Solar", value: totals.fromSolar },
+    { name: "Battery", value: totals.fromBattery },
+    { name: "Grid", value: totals.fromGrid },
+  ].filter((d) => d.value > 0)
+
+  const selfPowered =
+    total > 0 ? (((totals.fromSolar + totals.fromBattery) / total) * 100).toFixed(0) : "0"
+
+  if (loading) {
+    return <div className="w-full h-52 bg-slate-50 animate-pulse rounded-xl" />
+  }
+
+  if (!data.length) {
+    return (
+      <div className="w-full h-52 flex items-center justify-center text-sm text-slate-400">
+        No energy mix data available
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative">
+      <ResponsiveContainer width="100%" height={200}>
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            innerRadius={55}
+            outerRadius={80}
+            paddingAngle={2}
+            dataKey="value"
+            strokeWidth={0}
+          >
+            {data.map((entry) => (
+              <Cell
+                key={entry.name}
+                fill={COLORS[entry.name as keyof typeof COLORS] ?? "#CBD5E1"}
+              />
+            ))}
+          </Pie>
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "#fff",
+              border: "1px solid #F1F5F9",
+              borderRadius: 12,
+              fontSize: 12,
+            }}
+            formatter={(value, name) => [formatKwh(typeof value === "number" ? value : 0), String(name)]}
+          />
+          <Legend
+            iconSize={8}
+            iconType="circle"
+            wrapperStyle={{ fontSize: 11 }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <span className="text-xl font-bold text-slate-700">{selfPowered}%</span>
+        <span className="text-[10px] text-slate-400 font-medium">Self-Powered</span>
+      </div>
+    </div>
+  )
+}
