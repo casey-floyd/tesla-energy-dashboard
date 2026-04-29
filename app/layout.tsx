@@ -12,6 +12,9 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Tesla Energy Dashboard",
   description: "Monitor your Tesla solar production and Powerwall storage",
+  icons: {
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>",
+  },
 }
 
 export default function RootLayout({
