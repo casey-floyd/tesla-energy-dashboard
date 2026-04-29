@@ -1,6 +1,7 @@
 "use client"
 
 import { BatteryFlowChart } from "@/components/BatteryFlowChart"
+import { EnergyCostPanel } from "@/components/EnergyCostPanel"
 import { BatteryGauge } from "@/components/BatteryGauge"
 import { EnergyHistoryChart } from "@/components/EnergyHistoryChart"
 import { EnergyMixDonut } from "@/components/EnergyMixDonut"
@@ -40,6 +41,7 @@ type PanelId =
   | "home-sources"
   | "battery-flow"
   | "grid-balance"
+  | "energy-costs"
   | "site-details"
 
 const DEFAULT_PANELS: PanelId[] = [
@@ -52,6 +54,7 @@ const DEFAULT_PANELS: PanelId[] = [
   "home-sources",
   "battery-flow",
   "grid-balance",
+  "energy-costs",
   "site-details",
 ]
 const PANEL_ORDER_KEY = "dashboard-panel-order"
@@ -364,6 +367,17 @@ export function DashboardClient({ preConfigured }: Props) {
                 />
               </CardContent>
             </Card>
+          </DraggablePanel>
+        )
+
+      case "energy-costs":
+        return (
+          <DraggablePanel key={panelId} panelId={panelId}>
+            <EnergyCostPanel
+              entries={history?.time_series ?? []}
+              period={period}
+              loading={historyLoading || siteLoading}
+            />
           </DraggablePanel>
         )
 
