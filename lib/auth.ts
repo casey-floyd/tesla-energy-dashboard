@@ -44,7 +44,13 @@ export const config: NextAuthConfig = {
       },
       token: {
         url: "https://auth.tesla.com/oauth2/v3/token",
-        params: { audience: TESLA_FLEET_BASE_URL },
+        // Tesla requires credentials in the request body (client_secret_post),
+        // not as an HTTP Basic auth header (client_secret_basic).
+        params: {
+          audience: TESLA_FLEET_BASE_URL,
+          client_id: process.env.TESLA_CLIENT_ID,
+          client_secret: process.env.TESLA_CLIENT_SECRET,
+        },
       },
       userinfo: "https://auth.tesla.com/oauth2/v3/userinfo",
       clientId: process.env.TESLA_CLIENT_ID,
