@@ -11,11 +11,11 @@ interface Props {
 
 function InfoRow({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3 py-2 border-b border-slate-50 last:border-0">
-      <div className="text-slate-400 flex-shrink-0">{icon}</div>
+    <div className="flex items-center gap-3 py-2 border-b border-slate-50 dark:border-slate-800 last:border-0">
+      <div className="text-slate-400 dark:text-slate-500 flex-shrink-0">{icon}</div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-slate-400">{label}</p>
-        <p className="text-sm font-medium text-slate-700 truncate">{value}</p>
+        <p className="text-xs text-slate-400 dark:text-slate-500">{label}</p>
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">{value}</p>
       </div>
     </div>
   )
@@ -26,14 +26,14 @@ export function SiteInfoPanel({ siteInfo, siteId, loading }: Props) {
     return (
       <div className="space-y-3">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="h-10 bg-slate-50 animate-pulse rounded-lg" />
+          <div key={i} className="h-10 bg-slate-50 dark:bg-slate-800 animate-pulse rounded-lg" />
         ))}
       </div>
     )
   }
 
   if (!siteInfo) {
-    return <p className="text-sm text-slate-400">No site information available.</p>
+    return <p className="text-sm text-slate-400 dark:text-slate-500">No site information available.</p>
   }
 
   const capacityKwh = siteInfo.nameplate_energy ? (siteInfo.nameplate_energy / 1000).toFixed(1) : "—"
@@ -91,7 +91,7 @@ export function SiteInfoPanel({ siteInfo, siteId, loading }: Props) {
       />
       {siteId && (
         <InfoRow
-          icon={<span className="text-[10px] font-mono text-slate-300">#</span>}
+          icon={<span className="text-[10px] font-mono text-slate-300 dark:text-slate-600">#</span>}
           label="Site ID"
           value={String(siteId)}
         />

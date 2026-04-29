@@ -1,5 +1,6 @@
 "use client"
 
+import { useTheme } from "@/components/ThemeProvider"
 import type { EnergyHistoryEntry } from "@/lib/types"
 import { useMemo } from "react"
 import {
@@ -27,6 +28,9 @@ function formatKwh(v: number): string {
 }
 
 export function ProductionChart({ entries, loading }: Props) {
+  const { theme } = useTheme()
+  const isDark = theme === "dark"
+
   const data = useMemo(
     () =>
       entries.map((e) => ({
@@ -38,15 +42,25 @@ export function ProductionChart({ entries, loading }: Props) {
   )
 
   if (loading) {
-    return <div className="w-full h-48 bg-slate-50 animate-pulse rounded-xl" />
+    return <div className="w-full h-48 bg-slate-50 dark:bg-slate-800 animate-pulse rounded-xl" />
   }
 
   if (!data.length) {
     return (
-      <div className="w-full h-48 flex items-center justify-center text-sm text-slate-400">
+      <div className="w-full h-48 flex items-center justify-center text-sm text-slate-400 dark:text-slate-500">
         No production data available
       </div>
     )
+  }
+
+  const gridStroke = isDark ? "#1e293b" : "#F1F5F9"
+  const tickFill = isDark ? "#64748b" : "#94A3B8"
+  const tooltipStyle = {
+    backgroundColor: isDark ? "#1e293b" : "#fff",
+    border: `1px solid ${isDark ? "#334155" : "#F1F5F9"}`,
+    borderRadius: 12,
+    fontSize: 12,
+    color: isDark ? "#e2e8f0" : "#1e293b",
   }
 
   return (
@@ -62,27 +76,22 @@ export function ProductionChart({ entries, loading }: Props) {
             <stop offset="95%" stopColor="#0EA5E9" stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
         <XAxis
           dataKey="time"
-          tick={{ fontSize: 10, fill: "#94A3B8" }}
+          tick={{ fontSize: 10, fill: tickFill }}
           tickLine={false}
           axisLine={false}
           interval="preserveStartEnd"
         />
         <YAxis
-          tick={{ fontSize: 10, fill: "#94A3B8" }}
+          tick={{ fontSize: 10, fill: tickFill }}
           tickLine={false}
           axisLine={false}
           tickFormatter={(v) => `${v}k`}
         />
         <Tooltip
-          contentStyle={{
-            backgroundColor: "#fff",
-            border: "1px solid #F1F5F9",
-            borderRadius: 12,
-            fontSize: 12,
-          }}
+          contentStyle={tooltipStyle}
           formatter={(value, name) => {
             const numVal = typeof value === "number" ? value : 0
             return [formatKwh(numVal * 1000), name === "solar" ? "Solar" : "Home"]

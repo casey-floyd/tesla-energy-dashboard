@@ -1,5 +1,6 @@
 "use client"
 
+import { useTheme } from "@/components/ThemeProvider"
 import type { LiveStatus } from "@/lib/types"
 import { motion } from "framer-motion"
 
@@ -27,8 +28,10 @@ function Node({ x, y, icon, label, value, bgColor, borderColor }: NodeProps) {
         className={`w-full h-full rounded-2xl border-2 ${bgColor} ${borderColor} flex flex-col items-center justify-center shadow-sm`}
       >
         <span className="text-2xl">{icon}</span>
-        <span className="text-[10px] font-medium text-slate-500 mt-0.5">{label}</span>
-        <span className="text-[11px] font-bold text-slate-700">{value}</span>
+        <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+          {label}
+        </span>
+        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200">{value}</span>
       </div>
     </foreignObject>
   )
@@ -43,9 +46,10 @@ interface FlowArrowProps {
   color: string
   reversed?: boolean
   label?: string
+  inactiveStroke: string
 }
 
-function FlowArrow({ x1, y1, x2, y2, active, color, reversed, label }: FlowArrowProps) {
+function FlowArrow({ x1, y1, x2, y2, active, color, reversed, label, inactiveStroke }: FlowArrowProps) {
   const mx = (x1 + x2) / 2
   const my = (y1 + y2) / 2
 
@@ -56,7 +60,7 @@ function FlowArrow({ x1, y1, x2, y2, active, color, reversed, label }: FlowArrow
         y1={y1}
         x2={x2}
         y2={y2}
-        stroke="#e2e8f0"
+        stroke={inactiveStroke}
         strokeWidth={2}
         strokeDasharray="4 4"
       />
@@ -65,9 +69,6 @@ function FlowArrow({ x1, y1, x2, y2, active, color, reversed, label }: FlowArrow
 
   const dx = x2 - x1
   const dy = y2 - y1
-  const len = Math.sqrt(dx * dx + dy * dy)
-  const ux = dx / len
-  const uy = dy / len
 
   const particles = [0, 0.33, 0.66]
 
@@ -125,10 +126,14 @@ interface Props {
 }
 
 export function PowerFlowDiagram({ data, loading }: Props) {
+  const { theme } = useTheme()
+  const isDark = theme === "dark"
+  const inactiveStroke = isDark ? "#334155" : "#e2e8f0"
+
   if (loading || !data) {
     return (
       <div className="w-full h-64 flex items-center justify-center">
-        <div className="w-full h-full bg-slate-50 animate-pulse rounded-2xl" />
+        <div className="w-full h-full bg-slate-50 dark:bg-slate-800 animate-pulse rounded-2xl" />
       </div>
     )
   }
@@ -158,6 +163,7 @@ export function PowerFlowDiagram({ data, loading }: Props) {
           active={solarActive}
           color="#F59E0B"
           label={solarActive ? formatWatts(data.solar_power) : undefined}
+          inactiveStroke={inactiveStroke}
         />
         <FlowArrow
           x1={sunX}
@@ -167,6 +173,7 @@ export function PowerFlowDiagram({ data, loading }: Props) {
           active={batteryCharging && solarActive}
           color="#10B981"
           label={batteryCharging ? formatWatts(Math.abs(data.battery_power)) : undefined}
+          inactiveStroke={inactiveStroke}
         />
         <FlowArrow
           x1={battX + 44}
@@ -177,6 +184,7 @@ export function PowerFlowDiagram({ data, loading }: Props) {
           color="#10B981"
           label={batteryDischarging ? formatWatts(Math.abs(data.battery_power)) : undefined}
           reversed={false}
+          inactiveStroke={inactiveStroke}
         />
         <FlowArrow
           x1={homeX}
@@ -191,6 +199,7 @@ export function PowerFlowDiagram({ data, loading }: Props) {
               ? formatWatts(Math.abs(data.grid_power))
               : undefined
           }
+          inactiveStroke={inactiveStroke}
         />
 
         <Node
@@ -200,8 +209,8 @@ export function PowerFlowDiagram({ data, loading }: Props) {
           label="Solar"
           value={formatWatts(data.solar_power)}
           color="#F59E0B"
-          bgColor="bg-amber-50"
-          borderColor="border-amber-200"
+          bgColor="bg-amber-50 dark:bg-amber-900/20"
+          borderColor="border-amber-200 dark:border-amber-800"
         />
         <Node
           x={homeX}
@@ -210,8 +219,8 @@ export function PowerFlowDiagram({ data, loading }: Props) {
           label="Home"
           value={formatWatts(data.load_power)}
           color="#0EA5E9"
-          bgColor="bg-sky-50"
-          borderColor="border-sky-200"
+          bgColor="bg-sky-50 dark:bg-sky-900/20"
+          borderColor="border-sky-200 dark:border-sky-800"
         />
         <Node
           x={battX}
@@ -226,8 +235,8 @@ export function PowerFlowDiagram({ data, loading }: Props) {
                 : "Idle"
           }
           color="#10B981"
-          bgColor="bg-emerald-50"
-          borderColor="border-emerald-200"
+          bgColor="bg-emerald-50 dark:bg-emerald-900/20"
+          borderColor="border-emerald-200 dark:border-emerald-800"
         />
         <Node
           x={gridX}
@@ -242,8 +251,16 @@ export function PowerFlowDiagram({ data, loading }: Props) {
                 : "Idle"
           }
           color={gridExporting ? "#6366F1" : "#64748B"}
-          bgColor={gridExporting ? "bg-indigo-50" : "bg-slate-50"}
-          borderColor={gridExporting ? "border-indigo-200" : "border-slate-200"}
+          bgColor={
+            gridExporting
+              ? "bg-indigo-50 dark:bg-indigo-900/20"
+              : "bg-slate-50 dark:bg-slate-800"
+          }
+          borderColor={
+            gridExporting
+              ? "border-indigo-200 dark:border-indigo-800"
+              : "border-slate-200 dark:border-slate-700"
+          }
         />
       </svg>
     </div>

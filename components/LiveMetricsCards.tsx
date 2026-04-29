@@ -46,7 +46,7 @@ interface MetricCardProps {
 
 function MetricCard({ icon, label, subtext, color, bgColor, loading, children }: MetricCardProps) {
   return (
-    <Card className="border border-slate-100 shadow-sm rounded-2xl">
+    <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-start justify-between">
           <div className={`p-2.5 rounded-xl ${bgColor}`}>
@@ -54,14 +54,16 @@ function MetricCard({ icon, label, subtext, color, bgColor, loading, children }:
           </div>
         </div>
         <div className="mt-3">
-          <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">{label}</p>
+          <p className="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+            {label}
+          </p>
           {loading ? (
-            <div className="mt-1 h-7 w-24 bg-slate-100 animate-pulse rounded-md" />
+            <div className="mt-1 h-7 w-24 bg-slate-100 dark:bg-slate-700 animate-pulse rounded-md" />
           ) : (
             children
           )}
           {subtext && !loading && (
-            <p className="mt-0.5 text-xs text-slate-400">{subtext}</p>
+            <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{subtext}</p>
           )}
         </div>
       </CardContent>
@@ -89,7 +91,7 @@ export function LiveMetricsCards({ data, loading }: Props) {
         label="Solar"
         subtext="Production"
         color="text-amber-500"
-        bgColor="bg-amber-50"
+        bgColor="bg-amber-50 dark:bg-amber-900/20"
         loading={loading}
       >
         {data ? (
@@ -104,7 +106,7 @@ export function LiveMetricsCards({ data, loading }: Props) {
         label="Battery"
         subtext={batteryDirection}
         color="text-emerald-500"
-        bgColor="bg-emerald-50"
+        bgColor="bg-emerald-50 dark:bg-emerald-900/20"
         loading={loading}
       >
         {data ? (
@@ -119,7 +121,7 @@ export function LiveMetricsCards({ data, loading }: Props) {
         label="Home"
         subtext="Consumption"
         color="text-sky-500"
-        bgColor="bg-sky-50"
+        bgColor="bg-sky-50 dark:bg-sky-900/20"
         loading={loading}
       >
         {data ? (
@@ -134,7 +136,11 @@ export function LiveMetricsCards({ data, loading }: Props) {
         label="Grid"
         subtext={gridDirection}
         color={data && data.grid_power < 0 ? "text-indigo-500" : "text-slate-500"}
-        bgColor={data && data.grid_power < 0 ? "bg-indigo-50" : "bg-slate-50"}
+        bgColor={
+          data && data.grid_power < 0
+            ? "bg-indigo-50 dark:bg-indigo-900/20"
+            : "bg-slate-50 dark:bg-slate-800"
+        }
         loading={loading}
       >
         {data ? (

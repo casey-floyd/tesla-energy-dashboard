@@ -1,5 +1,6 @@
 "use client"
 
+import { useTheme } from "@/components/ThemeProvider"
 import type { EnergyHistoryEntry, HistoryPeriod } from "@/lib/types"
 import { useMemo } from "react"
 import {
@@ -33,6 +34,9 @@ function formatKwh(v: number): string {
 }
 
 export function EnergyHistoryChart({ entries, period, loading }: Props) {
+  const { theme } = useTheme()
+  const isDark = theme === "dark"
+
   const data = useMemo(
     () =>
       entries.map((e) => ({
@@ -50,41 +54,47 @@ export function EnergyHistoryChart({ entries, period, loading }: Props) {
   )
 
   if (loading) {
-    return <div className="w-full h-52 bg-slate-50 animate-pulse rounded-xl" />
+    return <div className="w-full h-52 bg-slate-50 dark:bg-slate-800 animate-pulse rounded-xl" />
   }
 
   if (!data.length) {
     return (
-      <div className="w-full h-52 flex items-center justify-center text-sm text-slate-400">
+      <div className="w-full h-52 flex items-center justify-center text-sm text-slate-400 dark:text-slate-500">
         No history data available
       </div>
     )
   }
 
+  const gridStroke = isDark ? "#1e293b" : "#F1F5F9"
+  const tickFill = isDark ? "#64748b" : "#94A3B8"
+  const legendStyle = isDark ? { fontSize: 11, paddingTop: 8, color: "#94a3b8" } : { fontSize: 11, paddingTop: 8 }
+  const tooltipStyle = {
+    backgroundColor: isDark ? "#1e293b" : "#fff",
+    border: `1px solid ${isDark ? "#334155" : "#F1F5F9"}`,
+    borderRadius: 12,
+    fontSize: 12,
+    color: isDark ? "#e2e8f0" : "#1e293b",
+  }
+
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 10, fill: "#94A3B8" }}
+          tick={{ fontSize: 10, fill: tickFill }}
           tickLine={false}
           axisLine={false}
           interval="preserveStartEnd"
         />
         <YAxis
-          tick={{ fontSize: 10, fill: "#94A3B8" }}
+          tick={{ fontSize: 10, fill: tickFill }}
           tickLine={false}
           axisLine={false}
           tickFormatter={(v) => `${v}k`}
         />
         <Tooltip
-          contentStyle={{
-            backgroundColor: "#fff",
-            border: "1px solid #F1F5F9",
-            borderRadius: 12,
-            fontSize: 12,
-          }}
+          contentStyle={tooltipStyle}
           formatter={(value, name) => {
             const labels: Record<string, string> = {
               solar: "Solar Generated",
@@ -99,7 +109,7 @@ export function EnergyHistoryChart({ entries, period, loading }: Props) {
         <Legend
           iconSize={8}
           iconType="circle"
-          wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+          wrapperStyle={legendStyle}
           formatter={(value) => {
             const labels: Record<string, string> = {
               solar: "Solar",
