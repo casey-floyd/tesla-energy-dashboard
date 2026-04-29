@@ -67,42 +67,30 @@ function FlowArrow({ x1, y1, x2, y2, active, color, reversed, label, inactiveStr
     )
   }
 
-  const dx = x2 - x1
-  const dy = y2 - y1
-
-  const particles = [0, 0.33, 0.66]
+  // One full dash+gap cycle = 18px; offset direction controls visual flow direction
+  const offsetTarget = reversed ? 18 : -18
 
   return (
     <g>
-      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={color} strokeWidth={2.5} strokeOpacity={0.3} />
-      {particles.map((offset, i) => (
-        <motion.circle
-          key={i}
-          r={4}
-          fill={color}
-          initial={{ x: reversed ? x2 : x1, y: reversed ? y2 : y1 }}
-          animate={{
-            x: [
-              reversed ? x2 : x1,
-              reversed ? x2 + (x1 - x2) * 0.33 : x1 + dx * 0.33,
-              reversed ? x2 + (x1 - x2) * 0.66 : x1 + dx * 0.66,
-              reversed ? x1 : x2,
-            ],
-            y: [
-              reversed ? y2 : y1,
-              reversed ? y2 + (y1 - y2) * 0.33 : y1 + dy * 0.33,
-              reversed ? y2 + (y1 - y2) * 0.66 : y1 + dy * 0.66,
-              reversed ? y1 : y2,
-            ],
-          }}
-          transition={{
-            duration: 1.8,
-            repeat: Infinity,
-            delay: offset * 1.8,
-            ease: "linear",
-          }}
-        />
-      ))}
+      {/* Pulsing glow track */}
+      <motion.line
+        x1={x1} y1={y1} x2={x2} y2={y2}
+        stroke={color}
+        strokeWidth={7}
+        strokeLinecap="round"
+        animate={{ strokeOpacity: [0.08, 0.22, 0.08] }}
+        transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+      />
+      {/* Flowing wave dashes */}
+      <motion.line
+        x1={x1} y1={y1} x2={x2} y2={y2}
+        stroke={color}
+        strokeWidth={2.5}
+        strokeLinecap="round"
+        strokeDasharray="12 6"
+        animate={{ strokeDashoffset: [0, offsetTarget] }}
+        transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+      />
       {label && (
         <text
           x={mx}
