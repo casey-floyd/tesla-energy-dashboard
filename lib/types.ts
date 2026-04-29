@@ -35,6 +35,8 @@ export interface SiteInfo {
   resource_type: string
   grid_code: string
   country: string
+  latitude?: number
+  longitude?: number
   storm_mode_enabled: boolean
   powerwall_onboarding_settings_set: boolean
   components: {
@@ -107,6 +109,19 @@ export interface Product {
 }
 
 export type HistoryPeriod = "day" | "week" | "month" | "year" | "lifetime"
+
+export interface WeatherData {
+  temperature_2m: number
+  apparent_temperature: number
+  relative_humidity_2m: number
+  precipitation: number
+  weather_code: number
+  cloud_cover: number
+  wind_speed_10m: number
+  lat: number
+  lon: number
+  locationName: string | null
+}
 
 export interface DashboardData {
   liveStatus: LiveStatus | null

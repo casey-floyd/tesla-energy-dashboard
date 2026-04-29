@@ -1,15 +1,19 @@
 "use client"
 
+import { BatteryFlowChart } from "@/components/BatteryFlowChart"
 import { BatteryGauge } from "@/components/BatteryGauge"
 import { EnergyHistoryChart } from "@/components/EnergyHistoryChart"
 import { EnergyMixDonut } from "@/components/EnergyMixDonut"
+import { GridBalanceChart } from "@/components/GridBalanceChart"
 import { GridStatusBanner } from "@/components/GridStatusBanner"
+import { HomeSourcesChart } from "@/components/HomeSourcesChart"
 import { LiveMetricsCards } from "@/components/LiveMetricsCards"
 import { PowerFlowDiagram } from "@/components/PowerFlowDiagram"
 import { ProductionChart } from "@/components/ProductionChart"
 import { SiteInfoPanel } from "@/components/SiteInfoPanel"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { WallConnectorPanel } from "@/components/WallConnectorPanel"
+import { WeatherPanel } from "@/components/WeatherPanel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useLiveData } from "@/hooks/useLiveData"
 import type { CalendarHistory, HistoryPeriod, SiteInfo } from "@/lib/types"
@@ -26,13 +30,28 @@ const PERIODS: { label: string; value: HistoryPeriod }[] = [
   { label: "Year", value: "year" },
 ]
 
-type PanelId = "live-metrics" | "power-battery" | "wall-connector" | "production" | "history-mix" | "site-details"
+type PanelId =
+  | "live-metrics"
+  | "power-battery"
+  | "wall-connector"
+  | "weather"
+  | "production"
+  | "history-mix"
+  | "home-sources"
+  | "battery-flow"
+  | "grid-balance"
+  | "site-details"
+
 const DEFAULT_PANELS: PanelId[] = [
   "live-metrics",
   "power-battery",
   "wall-connector",
+  "weather",
   "production",
   "history-mix",
+  "home-sources",
+  "battery-flow",
+  "grid-balance",
   "site-details",
 ]
 const PANEL_ORDER_KEY = "dashboard-panel-order"
@@ -259,6 +278,92 @@ export function DashboardClient({ preConfigured }: Props) {
                 </CardContent>
               </Card>
             </div>
+          </DraggablePanel>
+        )
+
+      case "weather":
+        return (
+          <DraggablePanel key={panelId} panelId={panelId}>
+            <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
+              <CardHeader className="pb-2 pt-4 px-5">
+                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Current Weather
+                </CardTitle>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Solar generation forecast</p>
+              </CardHeader>
+              <CardContent className="px-5 pb-5">
+                <WeatherPanel siteInfo={siteInfo} />
+              </CardContent>
+            </Card>
+          </DraggablePanel>
+        )
+
+      case "home-sources":
+        return (
+          <DraggablePanel key={panelId} panelId={panelId}>
+            <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
+              <CardHeader className="pb-2 pt-4 px-5">
+                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Home Energy Sources
+                </CardTitle>
+                <p className="text-xs text-slate-400 dark:text-slate-500">
+                  Where your home&apos;s power came from
+                </p>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <HomeSourcesChart
+                  entries={history?.time_series ?? []}
+                  period={period}
+                  loading={historyLoading}
+                />
+              </CardContent>
+            </Card>
+          </DraggablePanel>
+        )
+
+      case "battery-flow":
+        return (
+          <DraggablePanel key={panelId} panelId={panelId}>
+            <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
+              <CardHeader className="pb-2 pt-4 px-5">
+                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Battery Flow
+                </CardTitle>
+                <p className="text-xs text-slate-400 dark:text-slate-500">
+                  Charged from solar/grid (above) · Discharged to home/grid (below)
+                </p>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <BatteryFlowChart
+                  entries={history?.time_series ?? []}
+                  period={period}
+                  loading={historyLoading}
+                />
+              </CardContent>
+            </Card>
+          </DraggablePanel>
+        )
+
+      case "grid-balance":
+        return (
+          <DraggablePanel key={panelId} panelId={panelId}>
+            <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
+              <CardHeader className="pb-2 pt-4 px-5">
+                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Grid Interaction
+                </CardTitle>
+                <p className="text-xs text-slate-400 dark:text-slate-500">
+                  Energy bought from grid (above) · Sold back to grid (below)
+                </p>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <GridBalanceChart
+                  entries={history?.time_series ?? []}
+                  period={period}
+                  loading={historyLoading}
+                />
+              </CardContent>
+            </Card>
           </DraggablePanel>
         )
 
