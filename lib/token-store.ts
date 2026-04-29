@@ -8,6 +8,10 @@ interface TokenCache {
 
 let cache: TokenCache | null = null
 
+export function clearTokenCache(): void {
+  cache = null
+}
+
 export function hasPreStoredToken(): boolean {
   return !!process.env.TESLA_REFRESH_TOKEN
 }

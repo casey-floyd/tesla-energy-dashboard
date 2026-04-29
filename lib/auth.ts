@@ -39,7 +39,7 @@ export const config: NextAuthConfig = {
       authorization: {
         url: "https://auth.tesla.com/oauth2/v3/authorize",
         params: {
-          scope: "openid email offline_access energy_device_data",
+          scope: "openid email offline_access energy_device_data vehicle_device_data",
           response_type: "code",
         },
       },

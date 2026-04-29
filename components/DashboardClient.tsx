@@ -14,8 +14,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useLiveData } from "@/hooks/useLiveData"
 import type { CalendarHistory, HistoryPeriod, SiteInfo } from "@/lib/types"
 import { Reorder, useDragControls } from "framer-motion"
-import { GripVertical, LogOut, Zap } from "lucide-react"
+import { GripVertical, LogOut, RefreshCw, Zap } from "lucide-react"
 import { signOut } from "next-auth/react"
+import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 
 const PERIODS: { label: string; value: HistoryPeriod }[] = [
@@ -303,6 +304,14 @@ export function DashboardClient({ preConfigured }: Props) {
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <Link
+              href="/reauth"
+              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors px-2 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+              title="Reauthorize Tesla account"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Reauthorize</span>
+            </Link>
             {!preConfigured && (
               <button
                 onClick={() => signOut({ callbackUrl: "/login" })}
