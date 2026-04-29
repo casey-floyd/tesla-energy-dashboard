@@ -35,6 +35,7 @@ export const config: NextAuthConfig = {
       id: "tesla",
       name: "Tesla",
       type: "oauth",
+      issuer: "https://auth.tesla.com/oauth2/v3/nts",
       authorization: {
         url: "https://auth.tesla.com/oauth2/v3/authorize",
         params: {
