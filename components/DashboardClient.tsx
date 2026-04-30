@@ -92,9 +92,10 @@ function DraggablePanel({
 
 interface Props {
   preConfigured: boolean
+  skyEnabled?: boolean
 }
 
-export function DashboardClient({ preConfigured }: Props) {
+export function DashboardClient({ preConfigured, skyEnabled = false }: Props) {
   const [siteId, setSiteId] = useState<number | null>(null)
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null)
   const [siteLoading, setSiteLoading] = useState(true)
@@ -401,10 +402,19 @@ export function DashboardClient({ preConfigured }: Props) {
   }
 
   return (
-    <div className="sky-dashboard dark min-h-screen">
-      <SkyCanvas />
-      <div className="relative min-h-screen" style={{ zIndex: 1 }}>
-      <header className="sticky top-0 z-10 border-b" style={{ background: "rgba(5,8,18,0.9)", backdropFilter: "blur(28px)", borderColor: "rgba(255,255,255,0.06)" }}>
+    <div className={skyEnabled ? "sky-dashboard dark min-h-screen" : "min-h-screen bg-slate-50 dark:bg-slate-950"}>
+      {skyEnabled && <SkyCanvas />}
+      <div className={skyEnabled ? "relative min-h-screen" : undefined} style={skyEnabled ? { zIndex: 1 } : undefined}>
+      <header
+        className={skyEnabled
+          ? "sticky top-0 z-10 border-b"
+          : "sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800"
+        }
+        style={skyEnabled
+          ? { background: "rgba(5,8,18,0.9)", backdropFilter: "blur(28px)", borderColor: "rgba(255,255,255,0.06)" }
+          : undefined
+        }
+      >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
