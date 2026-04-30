@@ -1,5 +1,6 @@
 "use client"
 
+import { SkyCanvas } from "@/components/SkyCanvas"
 import { BatteryFlowChart } from "@/components/BatteryFlowChart"
 import { EnergyCostPanel } from "@/components/EnergyCostPanel"
 import { BatteryGauge } from "@/components/BatteryGauge"
@@ -400,8 +401,10 @@ export function DashboardClient({ preConfigured }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <header className="sticky top-0 z-10 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800">
+    <div className="sky-dashboard dark min-h-screen">
+      <SkyCanvas />
+      <div className="relative min-h-screen" style={{ zIndex: 1 }}>
+      <header className="sticky top-0 z-10 border-b" style={{ background: "rgba(5,8,18,0.9)", backdropFilter: "blur(28px)", borderColor: "rgba(255,255,255,0.06)" }}>
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="p-1.5 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
@@ -446,13 +449,13 @@ export function DashboardClient({ preConfigured }: Props) {
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-5">
         {siteError && (
-          <div className="rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/50 px-4 py-3 text-sm text-red-600 dark:text-red-400">
+          <div className="sky-alert-red rounded-xl border px-4 py-3 text-sm text-red-400">
             {siteError} — check your Tesla API credentials.
           </div>
         )}
 
         {liveError && (
-          <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/50 px-4 py-3 text-sm text-amber-700 dark:text-amber-400">
+          <div className="sky-alert-amber rounded-xl border px-4 py-3 text-sm text-amber-400">
             Live data unavailable: {liveError}
           </div>
         )}
@@ -474,6 +477,7 @@ export function DashboardClient({ preConfigured }: Props) {
           {panels.map((panelId) => renderPanel(panelId))}
         </Reorder.Group>
       </main>
+      </div>
     </div>
   )
 }
