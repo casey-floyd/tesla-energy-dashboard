@@ -17,6 +17,9 @@ interface TouSchedule {
   winterOnPeakEnd: number
   winterOnPeakRate: number
   winterOffPeakRate: number
+  superOffPeakStart?: number
+  superOffPeakEnd?: number
+  superOffPeakRate?: number
 }
 
 export interface RatePlan {
@@ -49,6 +52,67 @@ export interface CostSeriesPoint {
   exportEarnings: number
 }
 
+export interface RcpTranche {
+  id: string
+  label: string
+  installPeriod: string
+  exportRate: number
+}
+
+export const RCP_TRANCHES: RcpTranche[] = [
+  { id: "2017", label: "Tranche 2017", installPeriod: "Sep 1, 2017 – Sep 30, 2018", exportRate: 0.12900 },
+  { id: "2018", label: "Tranche 2018", installPeriod: "Oct 1, 2018 – Sep 30, 2019", exportRate: 0.11610 },
+  { id: "2019", label: "Tranche 2019 & 2020", installPeriod: "Oct 1, 2019 – Sep 30, 2021", exportRate: 0.10450 },
+  { id: "2021", label: "Tranche 2021", installPeriod: "Oct 1, 2021 – Aug 31, 2022", exportRate: 0.09405 },
+  { id: "2022", label: "Tranche 2022", installPeriod: "Sep 1, 2022 – Aug 31, 2023", exportRate: 0.08465 },
+  { id: "2023", label: "Tranche 2023", installPeriod: "Sep 1, 2023 – Aug 31, 2024", exportRate: 0.07619 },
+  { id: "2024", label: "Tranche 2024", installPeriod: "Sep 1, 2024 – Aug 31, 2025", exportRate: 0.06857 },
+  { id: "2025", label: "Tranche 2025", installPeriod: "Sep 1, 2025 – Aug 31, 2026", exportRate: 0.06171 },
+]
+
+export type RatePeriodLabel = "on-peak" | "super-off-peak" | "off-peak"
+
+export interface CurrentRatePeriod {
+  label: RatePeriodLabel
+  displayName: string
+  rate: number
+  season: "summer" | "winter"
+}
+
+export function getCurrentRatePeriod(plan: RatePlan, now = new Date()): CurrentRatePeriod | null {
+  if (!plan.tou) return null
+
+  const month = now.getMonth() + 1
+  const hour = now.getHours()
+  const dayOfWeek = now.getDay()
+  const isSummer = plan.tou.summerMonths.includes(month)
+  const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5
+  const season = isSummer ? "summer" : "winter"
+
+  const onPeakStart = isSummer ? plan.tou.summerOnPeakStart : plan.tou.winterOnPeakStart
+  const onPeakEnd = isSummer ? plan.tou.summerOnPeakEnd : plan.tou.winterOnPeakEnd
+  const onPeakRate = isSummer ? plan.tou.summerOnPeakRate : plan.tou.winterOnPeakRate
+  const offPeakRate = isSummer ? plan.tou.summerOffPeakRate : plan.tou.winterOffPeakRate
+
+  if (isWeekday && hour >= onPeakStart && hour < onPeakEnd) {
+    return { label: "on-peak", displayName: "On-Peak", rate: onPeakRate, season }
+  }
+
+  if (
+    !isSummer &&
+    plan.tou.superOffPeakRate !== undefined &&
+    plan.tou.superOffPeakStart !== undefined &&
+    plan.tou.superOffPeakEnd !== undefined &&
+    isWeekday &&
+    hour >= plan.tou.superOffPeakStart &&
+    hour < plan.tou.superOffPeakEnd
+  ) {
+    return { label: "super-off-peak", displayName: "Super Off-Peak", rate: plan.tou.superOffPeakRate, season }
+  }
+
+  return { label: "off-peak", displayName: "Off-Peak", rate: offPeakRate, season }
+}
+
 // Approximate APS rates — energy charges only, excludes fixed distribution/demand charges.
 // Update importRateFlat / tou rates to match your actual bill.
 export const APS_RATE_PLANS: RatePlan[] = [
@@ -79,20 +143,23 @@ export const APS_RATE_PLANS: RatePlan[] = [
   },
   {
     key: "aps-saver-choice-max",
-    label: "APS Saver Choice Max",
-    description: "TOU + demand charge (energy portion only)",
+    label: "APS Saver Choice Max (R-3)",
+    description: "TOU 4–7 PM weekdays + demand charge (energy only)",
     importRateFlat: 0.1191,
     exportRate: 0.0753,
     tou: {
       summerMonths: [5, 6, 7, 8, 9, 10],
-      summerOnPeakStart: 15,
-      summerOnPeakEnd: 20,
-      summerOnPeakRate: 0.2321,
-      summerOffPeakRate: 0.0994,
-      winterOnPeakStart: 17,
-      winterOnPeakEnd: 21,
-      winterOnPeakRate: 0.1589,
-      winterOffPeakRate: 0.0866,
+      summerOnPeakStart: 16,
+      summerOnPeakEnd: 19,
+      summerOnPeakRate: 0.14227,
+      summerOffPeakRate: 0.05943,
+      winterOnPeakStart: 16,
+      winterOnPeakEnd: 19,
+      winterOnPeakRate: 0.09932,
+      winterOffPeakRate: 0.05938,
+      superOffPeakStart: 10,
+      superOffPeakEnd: 15,
+      superOffPeakRate: 0.03495,
     },
   },
   {
@@ -124,20 +191,53 @@ function getImportRate(
     const onPeakEnd = isSummer ? plan.tou.summerOnPeakEnd : plan.tou.winterOnPeakEnd
     const onPeakRate = isSummer ? plan.tou.summerOnPeakRate : plan.tou.winterOnPeakRate
     const offPeakRate = isSummer ? plan.tou.summerOffPeakRate : plan.tou.winterOffPeakRate
-    return {
-      rate: isWeekday && hour >= onPeakStart && hour < onPeakEnd ? onPeakRate : offPeakRate,
-      isBlended: false,
+
+    if (isWeekday && hour >= onPeakStart && hour < onPeakEnd) {
+      return { rate: onPeakRate, isBlended: false }
     }
+
+    if (
+      !isSummer &&
+      plan.tou.superOffPeakRate !== undefined &&
+      plan.tou.superOffPeakStart !== undefined &&
+      plan.tou.superOffPeakEnd !== undefined &&
+      isWeekday &&
+      hour >= plan.tou.superOffPeakStart &&
+      hour < plan.tou.superOffPeakEnd
+    ) {
+      return { rate: plan.tou.superOffPeakRate, isBlended: false }
+    }
+
+    return { rate: offPeakRate, isBlended: false }
   }
 
-  // Daily/monthly aggregates: weight on-peak hours (weekdays only) against total week hours
-  const peakHoursPerWeek = isSummer
+  // Daily/monthly aggregates: weight TOU hours against total week hours
+  const onPeakHoursPerWeek = isSummer
     ? (plan.tou.summerOnPeakEnd - plan.tou.summerOnPeakStart) * 5
     : (plan.tou.winterOnPeakEnd - plan.tou.winterOnPeakStart) * 5
   const onPeakRate = isSummer ? plan.tou.summerOnPeakRate : plan.tou.winterOnPeakRate
   const offPeakRate = isSummer ? plan.tou.summerOffPeakRate : plan.tou.winterOffPeakRate
+
+  if (
+    !isSummer &&
+    plan.tou.superOffPeakRate !== undefined &&
+    plan.tou.superOffPeakStart !== undefined &&
+    plan.tou.superOffPeakEnd !== undefined
+  ) {
+    const superHoursPerWeek = (plan.tou.superOffPeakEnd - plan.tou.superOffPeakStart) * 5
+    const regularOffPeakHoursPerWeek = 168 - onPeakHoursPerWeek - superHoursPerWeek
+    return {
+      rate:
+        (onPeakHoursPerWeek * onPeakRate +
+          superHoursPerWeek * plan.tou.superOffPeakRate +
+          regularOffPeakHoursPerWeek * offPeakRate) /
+        168,
+      isBlended: true,
+    }
+  }
+
   return {
-    rate: (peakHoursPerWeek * onPeakRate + (168 - peakHoursPerWeek) * offPeakRate) / 168,
+    rate: (onPeakHoursPerWeek * onPeakRate + (168 - onPeakHoursPerWeek) * offPeakRate) / 168,
     isBlended: true,
   }
 }
