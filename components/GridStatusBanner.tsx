@@ -76,7 +76,7 @@ export function GridStatusBanner({ data, loading, lastUpdated, onRefresh }: Prop
           </Badge>
         )}
       </div>
-      <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+      <div className="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-300">
         {timeStr && <span>Updated {timeStr}</span>}
         <button
           onClick={onRefresh}
@@ -84,7 +84,7 @@ export function GridStatusBanner({ data, loading, lastUpdated, onRefresh }: Prop
           title="Refresh"
         >
           <RefreshCw
-            className={`w-3.5 h-3.5 text-slate-400 dark:text-slate-500 ${loading ? "animate-spin" : ""}`}
+            className={`w-3.5 h-3.5 text-slate-400 dark:text-slate-300 ${loading ? "animate-spin" : ""}`}
           />
         </button>
       </div>

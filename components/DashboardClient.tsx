@@ -187,7 +187,7 @@ export function DashboardClient({ preConfigured }: Props) {
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
               <Card className="lg:col-span-3 border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
                 <CardHeader className="pb-2 pt-4 px-5">
-                  <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  <CardTitle className="text-sm font-semibold text-slate-700 dark:text-white">
                     Power Flow
                   </CardTitle>
                 </CardHeader>
@@ -197,7 +197,7 @@ export function DashboardClient({ preConfigured }: Props) {
               </Card>
               <Card className="lg:col-span-2 border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
                 <CardHeader className="pb-2 pt-4 px-5">
-                  <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  <CardTitle className="text-sm font-semibold text-slate-700 dark:text-white">
                     Battery
                   </CardTitle>
                 </CardHeader>
@@ -221,7 +221,7 @@ export function DashboardClient({ preConfigured }: Props) {
           <DraggablePanel key={panelId} panelId={panelId}>
             <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
               <CardHeader className="pb-2 pt-4 px-5">
-                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-white">
                   Solar Production Today
                 </CardTitle>
               </CardHeader>
@@ -242,7 +242,7 @@ export function DashboardClient({ preConfigured }: Props) {
               <Card className="lg:col-span-2 border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
                 <CardHeader className="pb-2 pt-4 px-5">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                    <CardTitle className="text-sm font-semibold text-slate-700 dark:text-white">
                       Energy History
                     </CardTitle>
                     <div className="flex gap-1">
@@ -252,8 +252,8 @@ export function DashboardClient({ preConfigured }: Props) {
                           onClick={() => setPeriod(p.value)}
                           className={`text-xs px-2.5 py-1 rounded-lg font-medium transition-colors ${
                             period === p.value
-                              ? "bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900"
-                              : "text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-700"
+                              ? "bg-slate-800 text-white dark:bg-white/20 dark:text-white"
+                              : "text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-white dark:hover:bg-white/10"
                           }`}
                         >
                           {p.label}
@@ -272,10 +272,10 @@ export function DashboardClient({ preConfigured }: Props) {
               </Card>
               <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
                 <CardHeader className="pb-2 pt-4 px-5">
-                  <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  <CardTitle className="text-sm font-semibold text-slate-700 dark:text-white">
                     Energy Mix
                   </CardTitle>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">Home energy sources</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-300">Home energy sources</p>
                 </CardHeader>
                 <CardContent className="px-4 pb-4">
                   <EnergyMixDonut entries={history?.time_series ?? []} loading={historyLoading} />
@@ -290,10 +290,10 @@ export function DashboardClient({ preConfigured }: Props) {
           <DraggablePanel key={panelId} panelId={panelId}>
             <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
               <CardHeader className="pb-2 pt-4 px-5">
-                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-white">
                   Current Weather
                 </CardTitle>
-                <p className="text-xs text-slate-400 dark:text-slate-500">Solar generation forecast</p>
+                <p className="text-xs text-slate-400 dark:text-slate-300">Solar generation forecast</p>
               </CardHeader>
               <CardContent className="px-5 pb-5">
                 <WeatherPanel siteInfo={siteInfo} />
@@ -307,10 +307,10 @@ export function DashboardClient({ preConfigured }: Props) {
           <DraggablePanel key={panelId} panelId={panelId}>
             <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
               <CardHeader className="pb-2 pt-4 px-5">
-                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-white">
                   Home Energy Sources
                 </CardTitle>
-                <p className="text-xs text-slate-400 dark:text-slate-500">
+                <p className="text-xs text-slate-400 dark:text-slate-300">
                   Where your home&apos;s power came from
                 </p>
               </CardHeader>
@@ -330,10 +330,10 @@ export function DashboardClient({ preConfigured }: Props) {
           <DraggablePanel key={panelId} panelId={panelId}>
             <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
               <CardHeader className="pb-2 pt-4 px-5">
-                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-white">
                   Battery Flow
                 </CardTitle>
-                <p className="text-xs text-slate-400 dark:text-slate-500">
+                <p className="text-xs text-slate-400 dark:text-slate-300">
                   Charged from solar/grid (above) · Discharged to home/grid (below)
                 </p>
               </CardHeader>
@@ -353,10 +353,10 @@ export function DashboardClient({ preConfigured }: Props) {
           <DraggablePanel key={panelId} panelId={panelId}>
             <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
               <CardHeader className="pb-2 pt-4 px-5">
-                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-white">
                   Grid Interaction
                 </CardTitle>
-                <p className="text-xs text-slate-400 dark:text-slate-500">
+                <p className="text-xs text-slate-400 dark:text-slate-300">
                   Energy bought from grid (above) · Sold back to grid (below)
                 </p>
               </CardHeader>
@@ -387,7 +387,7 @@ export function DashboardClient({ preConfigured }: Props) {
           <DraggablePanel key={panelId} panelId={panelId}>
             <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
               <CardHeader className="pb-2 pt-4 px-5">
-                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-white">
                   Site Details
                 </CardTitle>
               </CardHeader>
@@ -411,8 +411,8 @@ export function DashboardClient({ preConfigured }: Props) {
               <Zap className="w-4 h-4 text-amber-500" />
             </div>
             <div>
-              <h1 className="text-sm font-semibold text-slate-800 dark:text-slate-100">{siteName}</h1>
-              <p className="text-[10px] text-slate-400 dark:text-slate-500">Tesla Energy</p>
+              <h1 className="text-sm font-semibold text-slate-800 dark:text-white">{siteName}</h1>
+              <p className="text-[10px] text-slate-400 dark:text-slate-400">Tesla Energy</p>
             </div>
             {liveData && !liveLoading && (
               <div className="flex items-center gap-1.5 ml-1">
@@ -428,7 +428,7 @@ export function DashboardClient({ preConfigured }: Props) {
             <ThemeToggle />
             <Link
               href="/reauth"
-              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors px-2 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+              className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 dark:text-slate-300 dark:hover:text-white transition-colors px-2 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-white/10"
               title="Reauthorize Tesla account"
             >
               <RefreshCw className="w-3.5 h-3.5" />
@@ -437,7 +437,7 @@ export function DashboardClient({ preConfigured }: Props) {
             {!preConfigured && (
               <button
                 onClick={() => signOut({ callbackUrl: "/login" })}
-                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors px-2 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+                className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 dark:text-slate-300 dark:hover:text-white transition-colors px-2 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-white/10"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Sign out</span>

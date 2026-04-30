@@ -173,15 +173,15 @@ export function WeatherPanel({ siteInfo }: Props) {
             <span className="text-2xl font-bold text-slate-800 dark:text-slate-100">
               {Math.round(weather.temperature_2m)}°F
             </span>
-            <span className="text-sm text-slate-400 dark:text-slate-500">
+            <span className="text-sm text-slate-400 dark:text-slate-300">
               feels {Math.round(weather.apparent_temperature)}°
             </span>
           </div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-300">{label}</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
+      <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-300 flex-wrap">
         <span className="flex items-center gap-1">
           <Droplets className="w-3.5 h-3.5" />
           {weather.relative_humidity_2m}% humidity
@@ -199,7 +199,7 @@ export function WeatherPanel({ siteInfo }: Props) {
 
       <button
         onClick={handleChangeLocation}
-        className="ml-auto text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 flex items-center gap-0.5 transition-colors shrink-0"
+        className="ml-auto text-[10px] text-slate-400 dark:text-slate-400 hover:text-slate-600 dark:hover:text-white flex items-center gap-0.5 transition-colors shrink-0"
         title="Change location"
       >
         <MapPin className="w-3 h-3" />

@@ -1,6 +1,5 @@
 "use client"
 
-import { useTheme } from "@/components/ThemeProvider"
 import type { LiveStatus } from "@/lib/types"
 import { motion } from "framer-motion"
 
@@ -28,10 +27,10 @@ function Node({ x, y, icon, label, value, bgColor, borderColor }: NodeProps) {
         className={`w-full h-full rounded-2xl border-2 ${bgColor} ${borderColor} flex flex-col items-center justify-center shadow-sm`}
       >
         <span className="text-2xl">{icon}</span>
-        <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+        <span className="text-[10px] font-medium text-slate-400 dark:text-slate-300 mt-0.5">
           {label}
         </span>
-        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200">{value}</span>
+        <span className="text-[11px] font-bold text-slate-700 dark:text-white">{value}</span>
       </div>
     </foreignObject>
   )
@@ -114,9 +113,7 @@ interface Props {
 }
 
 export function PowerFlowDiagram({ data, loading }: Props) {
-  const { theme } = useTheme()
-  const isDark = theme === "dark"
-  const inactiveStroke = isDark ? "#334155" : "#e2e8f0"
+  const inactiveStroke = "#334155"
 
   if (loading || !data) {
     return (

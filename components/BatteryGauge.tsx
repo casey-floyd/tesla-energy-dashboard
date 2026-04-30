@@ -1,6 +1,5 @@
 "use client"
 
-import { useTheme } from "@/components/ThemeProvider"
 import type { LiveStatus, SiteInfo } from "@/lib/types"
 
 interface Props {
@@ -16,9 +15,6 @@ function formatWatts(w: number): string {
 }
 
 export function BatteryGauge({ data, siteInfo, loading }: Props) {
-  const { theme } = useTheme()
-  const isDark = theme === "dark"
-
   if (loading || !data) {
     return <div className="w-full h-full min-h-40 bg-slate-50 dark:bg-slate-800 animate-pulse rounded-2xl" />
   }
@@ -54,8 +50,6 @@ export function BatteryGauge({ data, siteInfo, loading }: Props) {
   const statusColor =
     pct > 60 ? "text-emerald-500" : pct > 25 ? "text-amber-500" : "text-red-500"
 
-  const trackColor = isDark ? "#1e293b" : "#F1F5F9"
-
   return (
     <div className="flex flex-col items-center justify-center gap-2 py-2">
       <div className="relative w-36 h-36">
@@ -65,7 +59,7 @@ export function BatteryGauge({ data, siteInfo, loading }: Props) {
             cy={70}
             r={radius}
             fill="none"
-            stroke={trackColor}
+            className="stroke-slate-200 dark:stroke-slate-700"
             strokeWidth={12}
             strokeDasharray={`${circumference * 0.75} ${circumference}`}
             strokeDashoffset={0}
@@ -89,7 +83,7 @@ export function BatteryGauge({ data, siteInfo, loading }: Props) {
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className={`text-2xl font-bold ${statusColor}`}>{Math.round(pct)}%</span>
           {storedKwh && (
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">
+            <span className="text-[11px] text-slate-400 dark:text-slate-300 font-medium">
               {storedKwh.toFixed(1)} kWh
             </span>
           )}
@@ -97,19 +91,19 @@ export function BatteryGauge({ data, siteInfo, loading }: Props) {
       </div>
 
       <div className="text-center">
-        <p className="text-xs text-slate-400 dark:text-slate-500 font-medium uppercase tracking-wide">
+        <p className="text-xs text-slate-400 dark:text-slate-300 font-medium uppercase tracking-wide">
           {isCharging ? "Charging" : isDischarging ? "Discharging" : "Standby"}
         </p>
         {(isCharging || isDischarging) && (
-          <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+          <p className="text-sm font-semibold text-slate-600 dark:text-slate-100">
             {formatWatts(Math.abs(batteryPower))}
           </p>
         )}
         {timeRemaining && (
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{timeRemaining}</p>
+          <p className="text-xs text-slate-400 dark:text-slate-300 mt-0.5">{timeRemaining}</p>
         )}
         {siteInfo && (
-          <p className="text-xs text-slate-300 dark:text-slate-600 mt-1">
+          <p className="text-xs text-slate-400 dark:text-slate-400 mt-1">
             Reserve: {siteInfo.backup_reserve_percent}%
           </p>
         )}

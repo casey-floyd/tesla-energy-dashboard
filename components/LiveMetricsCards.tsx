@@ -54,7 +54,7 @@ function MetricCard({ icon, label, subtext, color, bgColor, loading, children }:
           </div>
         </div>
         <div className="mt-3">
-          <p className="text-xs font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+          <p className="text-xs font-medium text-slate-400 dark:text-slate-300 uppercase tracking-wide">
             {label}
           </p>
           {loading ? (
@@ -63,7 +63,7 @@ function MetricCard({ icon, label, subtext, color, bgColor, loading, children }:
             children
           )}
           {subtext && !loading && (
-            <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{subtext}</p>
+            <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-300">{subtext}</p>
           )}
         </div>
       </CardContent>
