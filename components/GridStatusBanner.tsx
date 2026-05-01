@@ -9,9 +9,10 @@ interface Props {
   loading?: boolean
   lastUpdated: Date | null
   onRefresh: () => void
+  compact?: boolean
 }
 
-export function GridStatusBanner({ data, loading, lastUpdated, onRefresh }: Props) {
+export function GridStatusBanner({ data, loading, lastUpdated, onRefresh, compact }: Props) {
   if (!data) return null
 
   const islandStatus = data.island_status
@@ -48,6 +49,27 @@ export function GridStatusBanner({ data, loading, lastUpdated, onRefresh }: Prop
   const timeStr = lastUpdated
     ? lastUpdated.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
     : null
+
+  if (compact) {
+    return (
+      <div className="flex items-center gap-2 flex-wrap">
+        <Badge variant="outline" className={`text-xs font-medium px-2.5 py-1 ${statusColor} border`}>
+          <Icon className="w-3 h-3 mr-1.5" />
+          {statusLabel}
+        </Badge>
+        {data.storm_mode_active && (
+          <Badge variant="outline" className="text-xs font-medium px-2.5 py-1 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800 border">
+            ⛈ Storm Mode
+          </Badge>
+        )}
+        {data.operation === "backup" && (
+          <Badge variant="outline" className="text-xs font-medium px-2.5 py-1 bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800 border">
+            🛡 Backup
+          </Badge>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="flex items-center justify-between">

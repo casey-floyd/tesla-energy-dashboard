@@ -36,22 +36,22 @@ interface MetricTileProps {
 
 function MetricTile({ icon, label, subtext, iconColor, iconBg, loading, children }: MetricTileProps) {
   return (
-    <div className="rounded-xl bg-gray-50 dark:bg-slate-800 p-4">
+    <div className="rounded-xl bg-gray-50 dark:bg-neutral-800 p-4">
       <div className="flex items-center gap-2 mb-2">
         <div className={`p-1.5 rounded-lg ${iconBg}`}>
           <div className={`w-4 h-4 ${iconColor}`}>{icon}</div>
         </div>
-        <p className="text-xs font-semibold text-gray-400 dark:text-slate-400 uppercase tracking-wide">
+        <p className="text-xs font-semibold text-gray-400 dark:text-neutral-400 uppercase tracking-wide">
           {label}
         </p>
       </div>
       {loading ? (
-        <div className="h-6 w-20 bg-gray-200 dark:bg-slate-700 animate-pulse rounded-md" />
+        <div className="h-6 w-20 bg-gray-200 dark:bg-neutral-700 animate-pulse rounded-md" />
       ) : (
         children
       )}
       {subtext && !loading && (
-        <p className="mt-0.5 text-xs text-gray-400 dark:text-slate-500">{subtext}</p>
+        <p className="mt-0.5 text-xs text-gray-400 dark:text-neutral-500">{subtext}</p>
       )}
     </div>
   )
@@ -125,7 +125,7 @@ export function LiveMetricsCards({ data, loading }: Props) {
         iconBg={
           data && data.grid_power < 0
             ? "bg-indigo-50 dark:bg-indigo-900/20"
-            : "bg-gray-100 dark:bg-slate-700"
+            : "bg-gray-100 dark:bg-neutral-700"
         }
         loading={loading}
       >

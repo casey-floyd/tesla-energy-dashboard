@@ -52,33 +52,34 @@ export function GridBalanceChart({ entries, period, loading }: Props) {
   const hasData = data.some((d) => d.imported > 0 || d.exported < 0)
 
   if (loading) {
-    return <div className="w-full h-52 bg-slate-50 dark:bg-slate-800 animate-pulse rounded-xl" />
+    return <div className="w-full h-52 bg-slate-50 dark:bg-neutral-800 animate-pulse rounded-xl" />
   }
 
   if (!hasData) {
     return (
-      <div className="w-full h-52 flex items-center justify-center text-sm text-slate-400 dark:text-slate-500">
+      <div className="w-full h-52 flex items-center justify-center text-sm text-slate-400 dark:text-neutral-500">
         No grid data available
       </div>
     )
   }
 
-  const gridStroke = isDark ? "#1e293b" : "#F1F5F9"
-  const tickFill = isDark ? "#64748b" : "#94A3B8"
-  const refLineStroke = isDark ? "#334155" : "#CBD5E1"
+  const gridStroke = isDark ? "#1a1a1a" : "#F1F5F9"
+  const tickFill = isDark ? "#6b6b6b" : "#94A3B8"
+  const refLineStroke = isDark ? "#2a2a2a" : "#CBD5E1"
   const legendStyle = isDark
-    ? { fontSize: 11, paddingTop: 8, color: "#94a3b8" }
+    ? { fontSize: 11, paddingTop: 8, color: "#888888" }
     : { fontSize: 11, paddingTop: 8 }
   const tooltipStyle = {
-    backgroundColor: isDark ? "#1e293b" : "#fff",
-    border: `1px solid ${isDark ? "#334155" : "#F1F5F9"}`,
+    backgroundColor: isDark ? "#1a1a1a" : "#fff",
+    border: `1px solid ${isDark ? "#2a2a2a" : "#F1F5F9"}`,
     borderRadius: 12,
     fontSize: 12,
-    color: isDark ? "#e2e8f0" : "#1e293b",
+    color: isDark ? "#e5e5e5" : "#1a1a1a",
   }
 
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <div className="w-full h-full min-h-[180px]">
+    <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
         <XAxis
@@ -113,5 +114,6 @@ export function GridBalanceChart({ entries, period, loading }: Props) {
         <Bar dataKey="exported" fill="#10B981" fillOpacity={0.85} radius={[0, 0, 3, 3]} />
       </BarChart>
     </ResponsiveContainer>
+    </div>
   )
 }

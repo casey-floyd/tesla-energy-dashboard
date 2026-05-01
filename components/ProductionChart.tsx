@@ -42,29 +42,30 @@ export function ProductionChart({ entries, loading }: Props) {
   )
 
   if (loading) {
-    return <div className="w-full h-48 bg-slate-50 dark:bg-slate-800 animate-pulse rounded-xl" />
+    return <div className="w-full h-48 bg-slate-50 dark:bg-neutral-800 animate-pulse rounded-xl" />
   }
 
   if (!data.length) {
     return (
-      <div className="w-full h-48 flex items-center justify-center text-sm text-slate-400 dark:text-slate-500">
+      <div className="w-full h-48 flex items-center justify-center text-sm text-slate-400 dark:text-neutral-500">
         No production data available
       </div>
     )
   }
 
-  const gridStroke = isDark ? "#1e293b" : "#F1F5F9"
-  const tickFill = isDark ? "#64748b" : "#94A3B8"
+  const gridStroke = isDark ? "#1a1a1a" : "#F1F5F9"
+  const tickFill = isDark ? "#6b6b6b" : "#94A3B8"
   const tooltipStyle = {
-    backgroundColor: isDark ? "#1e293b" : "#fff",
-    border: `1px solid ${isDark ? "#334155" : "#F1F5F9"}`,
+    backgroundColor: isDark ? "#1a1a1a" : "#fff",
+    border: `1px solid ${isDark ? "#2a2a2a" : "#F1F5F9"}`,
     borderRadius: 12,
     fontSize: 12,
-    color: isDark ? "#e2e8f0" : "#1e293b",
+    color: isDark ? "#e5e5e5" : "#1a1a1a",
   }
 
   return (
-    <ResponsiveContainer width="100%" height={200}>
+    <div className="w-full h-full min-h-[160px]">
+    <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
         <defs>
           <linearGradient id="solarGrad" x1="0" y1="0" x2="0" y2="1">
@@ -115,5 +116,6 @@ export function ProductionChart({ entries, loading }: Props) {
         />
       </AreaChart>
     </ResponsiveContainer>
+    </div>
   )
 }

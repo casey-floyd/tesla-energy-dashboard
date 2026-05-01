@@ -49,21 +49,21 @@ function StatCard({
   positive?: boolean
 }) {
   return (
-    <div className="flex-1 min-w-0 px-3 py-3 rounded-xl bg-gray-50 dark:bg-slate-800/50">
-      <p className="text-[11px] text-slate-400 dark:text-slate-500 mb-0.5">{label}</p>
+    <div className="flex-1 min-w-0 px-3 py-3 rounded-xl bg-gray-50 dark:bg-neutral-800/50">
+      <p className="text-[11px] text-slate-400 dark:text-neutral-500 mb-0.5">{label}</p>
       <p
         className={`text-base font-semibold tabular-nums leading-tight ${
           positive === true
             ? "text-emerald-600 dark:text-emerald-400"
             : positive === false
               ? "text-rose-600 dark:text-rose-400"
-              : "text-slate-800 dark:text-slate-100"
+              : "text-slate-800 dark:text-neutral-100"
         }`}
       >
         {value}
       </p>
       {subLabel && (
-        <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{subLabel}</p>
+        <p className="text-[10px] text-slate-400 dark:text-neutral-500 mt-0.5">{subLabel}</p>
       )}
     </div>
   )
@@ -142,22 +142,22 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
   const hasData = chartData.some((d) => d.gridSpend > 0 || d.exportEarnings < 0)
   const netIsCredit = summary.netCostDollars <= 0
 
-  const gridStroke = isDark ? "#1e293b" : "#F1F5F9"
-  const tickFill = isDark ? "#64748b" : "#94A3B8"
-  const refLineStroke = isDark ? "#334155" : "#CBD5E1"
+  const gridStroke = isDark ? "#1a1a1a" : "#F1F5F9"
+  const tickFill = isDark ? "#6b6b6b" : "#94A3B8"
+  const refLineStroke = isDark ? "#2a2a2a" : "#CBD5E1"
   const tooltipStyle = {
-    backgroundColor: isDark ? "#1e293b" : "#fff",
-    border: `1px solid ${isDark ? "#334155" : "#F1F5F9"}`,
+    backgroundColor: isDark ? "#1a1a1a" : "#fff",
+    border: `1px solid ${isDark ? "#2a2a2a" : "#F1F5F9"}`,
     borderRadius: 12,
     fontSize: 12,
-    color: isDark ? "#e2e8f0" : "#1e293b",
+    color: isDark ? "#e5e5e5" : "#1a1a1a",
   }
   const legendStyle = isDark
-    ? { fontSize: 11, paddingTop: 8, color: "#94a3b8" }
+    ? { fontSize: 11, paddingTop: 8, color: "#888888" }
     : { fontSize: 11, paddingTop: 8 }
 
   return (
-    <Card className="border border-gray-100 dark:border-slate-800 shadow-sm rounded-2xl overflow-visible">
+    <Card className="border border-gray-100 dark:border-neutral-800 shadow-sm rounded-2xl overflow-visible h-full flex flex-col">
       <div style={{ perspective: "1200px" }}>
         <AnimatePresence mode="wait" initial={false}>
           {!isFlipped ? (
@@ -182,14 +182,14 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
                               ? "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400"
                               : currentPeriod.label === "super-off-peak"
                                 ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                : "bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400"
+                                : "bg-slate-100 text-slate-500 dark:bg-neutral-700 dark:text-neutral-400"
                           }`}
                         >
                           {currentPeriod.displayName} · ${currentPeriod.rate.toFixed(5)}/kWh
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
+                    <p className="text-xs text-slate-400 dark:text-neutral-500 mt-0.5">
                       {isCustom ? "Custom rates" : (selectedPlan?.description ?? "")}
                       {selectedTranche && !isCustom && (
                         <span className="ml-1.5 text-amber-500 dark:text-amber-400">
@@ -202,7 +202,7 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
                     <select
                       value={mounted ? selectedPlanKey : "aps-saver-choice"}
                       onChange={(e) => handlePlanChange(e.target.value as RatePlanKey)}
-                      className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-slate-300 dark:focus:ring-slate-600 cursor-pointer max-w-[180px]"
+                      className="text-xs px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-slate-600 dark:text-neutral-300 focus:outline-none focus:ring-1 focus:ring-slate-300 dark:focus:ring-neutral-600 cursor-pointer max-w-[180px]"
                     >
                       {APS_RATE_PLANS.map((plan) => (
                         <option key={plan.key} value={plan.key}>
@@ -213,7 +213,7 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
                     </select>
                     <button
                       onClick={() => setIsFlipped(true)}
-                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:text-neutral-500 dark:hover:text-neutral-300 dark:hover:bg-neutral-700 transition-colors"
                       title="Rate settings"
                     >
                       <Settings2 className="w-3.5 h-3.5" />
@@ -223,7 +223,7 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
 
                 {isCustom && (
                   <div className="flex flex-wrap gap-3 mt-3">
-                    <label className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                    <label className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-neutral-400">
                       Import $/kWh
                       <input
                         type="number"
@@ -234,10 +234,10 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
                           setCustomImport(e.target.value)
                           localStorage.setItem(CUSTOM_IMPORT_KEY, e.target.value)
                         }}
-                        className="w-20 px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-slate-300 dark:focus:ring-slate-600 tabular-nums"
+                        className="w-20 px-2 py-1 rounded-md border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-slate-700 dark:text-neutral-200 text-xs focus:outline-none focus:ring-1 focus:ring-slate-300 dark:focus:ring-neutral-600 tabular-nums"
                       />
                     </label>
-                    <label className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                    <label className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-neutral-400">
                       Export $/kWh
                       <input
                         type="number"
@@ -248,7 +248,7 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
                           setCustomExport(e.target.value)
                           localStorage.setItem(CUSTOM_EXPORT_KEY, e.target.value)
                         }}
-                        className="w-20 px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-slate-300 dark:focus:ring-slate-600 tabular-nums"
+                        className="w-20 px-2 py-1 rounded-md border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-slate-700 dark:text-neutral-200 text-xs focus:outline-none focus:ring-1 focus:ring-slate-300 dark:focus:ring-neutral-600 tabular-nums"
                       />
                     </label>
                   </div>
@@ -257,7 +257,7 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
 
               <CardContent className="px-4 pb-4 space-y-3">
                 {loading ? (
-                  <div className="w-full h-52 bg-slate-50 dark:bg-slate-800 animate-pulse rounded-xl" />
+                  <div className="w-full h-52 bg-slate-50 dark:bg-neutral-800 animate-pulse rounded-xl" />
                 ) : (
                   <>
                     <div className="flex gap-2">
@@ -282,7 +282,7 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
                     </div>
 
                     {!hasData ? (
-                      <div className="w-full h-44 flex items-center justify-center text-sm text-slate-400 dark:text-slate-500">
+                      <div className="w-full h-44 flex items-center justify-center text-sm text-slate-400 dark:text-neutral-500">
                         No grid data for this period
                       </div>
                     ) : (
@@ -330,11 +330,11 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
 
                     <div className="space-y-1">
                       {summary.isTouBlended && (
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                        <p className="text-[10px] text-slate-400 dark:text-neutral-500">
                           * TOU rates estimated for this period — switch to Day view for exact on-peak/off-peak pricing.
                         </p>
                       )}
-                      <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                      <p className="text-[10px] text-slate-400 dark:text-neutral-500">
                         Energy charges only — excludes fixed customer, distribution, and demand charges.
                       </p>
                     </div>
@@ -354,7 +354,7 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setIsFlipped(false)}
-                    className="p-1.5 -ml-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+                    className="p-1.5 -ml-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:text-neutral-500 dark:hover:text-neutral-300 dark:hover:bg-neutral-700 transition-colors"
                     title="Back to costs"
                   >
                     <ArrowLeft className="w-4 h-4" />
@@ -366,10 +366,10 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
               </CardHeader>
 
               <CardContent className="px-5 pb-5">
-                <p className="text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                <p className="text-xs font-medium text-slate-600 dark:text-neutral-400 mb-1">
                   Solar Export Rate (APS RCP Rider)
                 </p>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500 mb-3 leading-relaxed">
+                <p className="text-[11px] text-slate-400 dark:text-neutral-500 mb-3 leading-relaxed">
                   Select the tranche matching when your solar system was interconnected.
                   Your export credit rate is locked for 10 years from that date.
                 </p>
@@ -378,7 +378,7 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
                   <label
                     className={`flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-colors border ${
                       selectedTrancheId === null
-                        ? "border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-800/50"
+                        ? "border-slate-300 dark:border-neutral-600 bg-slate-50 dark:bg-neutral-800/50"
                         : "border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/30"
                     }`}
                   >
@@ -391,10 +391,10 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
                         className="accent-slate-500"
                       />
                       <div>
-                        <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                        <p className="text-xs font-medium text-slate-700 dark:text-neutral-300">
                           None / Not on RCP
                         </p>
-                        <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                        <p className="text-[10px] text-slate-400 dark:text-neutral-500">
                           Use plan default export rate
                         </p>
                       </div>
@@ -419,22 +419,22 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
                           className="accent-amber-500"
                         />
                         <div>
-                          <p className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                          <p className="text-xs font-medium text-slate-700 dark:text-neutral-300">
                             {tranche.label}
                           </p>
-                          <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                          <p className="text-[10px] text-slate-400 dark:text-neutral-500">
                             {tranche.installPeriod}
                           </p>
                         </div>
                       </div>
-                      <span className="text-xs tabular-nums font-medium text-slate-600 dark:text-slate-400 shrink-0 ml-3">
+                      <span className="text-xs tabular-nums font-medium text-slate-600 dark:text-neutral-400 shrink-0 ml-3">
                         ${tranche.exportRate.toFixed(5)}/kWh
                       </span>
                     </label>
                   ))}
                 </div>
 
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-3 leading-relaxed">
+                <p className="text-[10px] text-slate-400 dark:text-neutral-500 mt-3 leading-relaxed">
                   After your 10-year lock expires, the current RCP rate applies. Rates per APS
                   Rate Rider RCP, Decision No. 81439, effective Sep 1, 2025.
                 </p>

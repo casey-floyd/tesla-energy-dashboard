@@ -46,28 +46,28 @@ export function EnergyMixDonut({ entries, loading }: Props) {
     total > 0 ? (((totals.fromSolar + totals.fromBattery) / total) * 100).toFixed(0) : "0"
 
   if (loading) {
-    return <div className="w-full h-52 bg-slate-50 dark:bg-slate-800 animate-pulse rounded-xl" />
+    return <div className="w-full h-52 bg-slate-50 dark:bg-neutral-800 animate-pulse rounded-xl" />
   }
 
   if (!data.length) {
     return (
-      <div className="w-full h-52 flex items-center justify-center text-sm text-slate-400 dark:text-slate-500">
+      <div className="w-full h-52 flex items-center justify-center text-sm text-slate-400 dark:text-neutral-500">
         No energy mix data available
       </div>
     )
   }
 
   const tooltipStyle = {
-    backgroundColor: isDark ? "#1e293b" : "#fff",
-    border: `1px solid ${isDark ? "#334155" : "#F1F5F9"}`,
+    backgroundColor: isDark ? "#1a1a1a" : "#fff",
+    border: `1px solid ${isDark ? "#2a2a2a" : "#F1F5F9"}`,
     borderRadius: 12,
     fontSize: 12,
-    color: isDark ? "#e2e8f0" : "#1e293b",
+    color: isDark ? "#e5e5e5" : "#1a1a1a",
   }
 
   return (
-    <div className="relative">
-      <ResponsiveContainer width="100%" height={200}>
+    <div className="relative w-full h-full min-h-[180px]">
+      <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={data}
@@ -96,13 +96,13 @@ export function EnergyMixDonut({ entries, loading }: Props) {
           <Legend
             iconSize={8}
             iconType="circle"
-            wrapperStyle={{ fontSize: 11, color: isDark ? "#94a3b8" : undefined }}
+            wrapperStyle={{ fontSize: 11, color: isDark ? "#888888" : undefined }}
           />
         </PieChart>
       </ResponsiveContainer>
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <span className="text-xl font-bold text-slate-700 dark:text-slate-200">{selfPowered}%</span>
-        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">
+        <span className="text-xl font-bold text-slate-700 dark:text-neutral-200">{selfPowered}%</span>
+        <span className="text-[10px] text-slate-400 dark:text-neutral-500 font-medium">
           Self-Powered
         </span>
       </div>

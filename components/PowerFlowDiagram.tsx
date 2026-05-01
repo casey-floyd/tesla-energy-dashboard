@@ -113,7 +113,7 @@ interface Props {
 }
 
 export function PowerFlowDiagram({ data, loading }: Props) {
-  const inactiveStroke = "#334155"
+  const inactiveStroke = "#2a2a2a"
 
   if (loading || !data) {
     return (

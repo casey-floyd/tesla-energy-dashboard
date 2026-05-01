@@ -23,8 +23,8 @@ const STATE_LABELS: Record<number, string> = {
 }
 
 const STATE_COLORS: Record<number, { dot: string; text: string; bg: string }> = {
-  0: { dot: "bg-slate-300 dark:bg-slate-600", text: "text-slate-400 dark:text-slate-500", bg: "bg-slate-50 dark:bg-slate-800" },
-  1: { dot: "bg-slate-400 dark:bg-slate-500", text: "text-slate-500 dark:text-slate-400", bg: "bg-slate-50 dark:bg-slate-800" },
+  0: { dot: "bg-slate-300 dark:bg-slate-600", text: "text-slate-400 dark:text-neutral-500", bg: "bg-slate-50 dark:bg-neutral-800" },
+  1: { dot: "bg-slate-400 dark:bg-slate-500", text: "text-slate-500 dark:text-neutral-400", bg: "bg-slate-50 dark:bg-neutral-800" },
   2: { dot: "bg-amber-400", text: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-900/20" },
   3: { dot: "bg-emerald-400", text: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-900/20" },
   4: { dot: "bg-sky-400", text: "text-sky-500", bg: "bg-sky-50 dark:bg-sky-900/20" },
@@ -63,7 +63,7 @@ function ConnectorCard({ wc }: { wc: WallConnector }) {
         </div>
 
         {wc.vin && (
-          <p className="mt-1 text-xs text-slate-400 dark:text-slate-500 font-mono truncate">
+          <p className="mt-1 text-xs text-slate-400 dark:text-neutral-500 font-mono truncate">
             {maskVin(wc.vin)}
           </p>
         )}
@@ -97,7 +97,7 @@ export function WallConnectorPanel({ data, loading }: Props) {
   const chargingCount = connectors.filter((wc) => wc.wall_connector_state === 3).length
 
   return (
-    <Card className="border border-gray-100 dark:border-slate-800 shadow-sm rounded-2xl">
+    <Card className="border border-gray-100 dark:border-neutral-800 shadow-sm rounded-2xl h-full flex flex-col">
       <CardHeader className="pb-2 pt-5 px-5">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-bold text-gray-900 dark:text-white">
@@ -114,13 +114,13 @@ export function WallConnectorPanel({ data, loading }: Props) {
       <CardContent className="px-4 pb-4">
         {loading ? (
           <div className="space-y-2">
-            <div className="h-16 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
-            <div className="h-16 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse opacity-60" />
+            <div className="h-16 rounded-xl bg-slate-100 dark:bg-neutral-800 animate-pulse" />
+            <div className="h-16 rounded-xl bg-slate-100 dark:bg-neutral-800 animate-pulse opacity-60" />
           </div>
         ) : connectors.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center gap-2">
             <Plug className="w-6 h-6 text-slate-300 dark:text-slate-600" />
-            <p className="text-sm text-slate-400 dark:text-slate-500">No Wall Connectors detected</p>
+            <p className="text-sm text-slate-400 dark:text-neutral-500">No Wall Connectors detected</p>
             <p className="text-xs text-slate-300 dark:text-slate-600">
               Wall Connectors appear here when reported by your energy site
             </p>
