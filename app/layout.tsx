@@ -1,7 +1,6 @@
 import { ThemeProvider } from "@/components/ThemeProvider"
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
-import { SessionProvider } from "next-auth/react"
 import "./globals.css"
 
 const inter = Inter({
@@ -29,9 +28,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
-        <ThemeProvider>
-          <SessionProvider>{children}</SessionProvider>
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   )

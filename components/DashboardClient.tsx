@@ -23,9 +23,7 @@ import { WeatherPanel } from "@/components/WeatherPanel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useLiveData } from "@/hooks/useLiveData"
 import type { CalendarHistory, HistoryPeriod, SiteInfo } from "@/lib/types"
-import { ChevronDown, GripHorizontal, LogOut, RefreshCw, Zap } from "lucide-react"
-import { signOut } from "next-auth/react"
-import Link from "next/link"
+import { ChevronDown, GripHorizontal, Zap } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { Responsive, WidthProvider } from "react-grid-layout"
 import type { Layout, Layouts } from "react-grid-layout"
@@ -81,11 +79,10 @@ const SM_LAYOUT: Layout[] = [
 const DEFAULT_LAYOUTS: Layouts = { lg: LG_LAYOUT, sm: SM_LAYOUT }
 
 interface Props {
-  preConfigured: boolean
   skyEnabled?: boolean
 }
 
-export function DashboardClient({ preConfigured }: Props) {
+export function DashboardClient({ }: Props) {
   const [showSplash, setShowSplash] = useState(true)
   const [siteId, setSiteId] = useState<number | null>(null)
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null)
@@ -201,22 +198,6 @@ export function DashboardClient({ preConfigured }: Props) {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <ThemeToggle />
-            <Link
-              href="/reauth"
-              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 dark:text-neutral-400 dark:hover:text-white transition-colors px-2 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-white/10"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Reauthorize</span>
-            </Link>
-            {!preConfigured && (
-              <button
-                onClick={() => signOut({ callbackUrl: "/login" })}
-                className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 dark:text-neutral-400 dark:hover:text-white transition-colors px-2 py-1.5 rounded-lg hover:bg-gray-50 dark:hover:bg-white/10"
-              >
-                <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Sign out</span>
-              </button>
-            )}
           </div>
         </div>
       </header>

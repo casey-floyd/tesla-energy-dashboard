@@ -1,10 +1,9 @@
-import { auth } from "@/lib/auth"
-import { getAccessToken, hasPreStoredToken } from "@/lib/token-store"
+import { getAccessToken } from "@/lib/token-store"
 
 export async function resolveAccessToken(): Promise<string | null> {
-  if (hasPreStoredToken()) {
-    return getAccessToken()
+  try {
+    return await getAccessToken()
+  } catch {
+    return null
   }
-  const session = await auth()
-  return session?.accessToken ?? null
 }
