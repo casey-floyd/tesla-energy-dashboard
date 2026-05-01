@@ -244,10 +244,9 @@ export function DashboardClient({ preConfigured }: Props) {
           rowHeight={60}
           margin={[12, 12]}
           isDraggable
-          isResizable
+          isResizable={false}
           draggableHandle=".drag-handle"
           onLayoutChange={handleLayoutChange}
-          resizeHandles={["se", "sw", "ne", "nw", "e", "w", "n", "s"]}
         >
           <div key="live-status">
             <DashCard title="Live Status">
