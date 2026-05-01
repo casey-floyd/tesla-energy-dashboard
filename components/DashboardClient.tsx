@@ -5,6 +5,7 @@ import "react-resizable/css/styles.css"
 
 import { BatteryFlowChart } from "@/components/BatteryFlowChart"
 import { BatteryGauge } from "@/components/BatteryGauge"
+import { ChargingHistoryPanel } from "@/components/ChargingHistoryPanel"
 import { EnergyCostPanel } from "@/components/EnergyCostPanel"
 import { EnergyHistoryChart } from "@/components/EnergyHistoryChart"
 import { EnergyMixDonut } from "@/components/EnergyMixDonut"
@@ -25,10 +26,10 @@ import { ChevronDown, GripHorizontal, LogOut, RefreshCw, Zap } from "lucide-reac
 import { signOut } from "next-auth/react"
 import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
-import ReactGridLayout from "react-grid-layout"
+import { Responsive, WidthProvider } from "react-grid-layout"
+import type { Layout, Layouts } from "react-grid-layout"
 
-type Layout = ReactGridLayout.Layout
-const RGL = ReactGridLayout.WidthProvider(ReactGridLayout)
+const RGL = WidthProvider(Responsive)
 
 const PERIODS: { label: string; value: HistoryPeriod }[] = [
   { label: "Day", value: "day" },
@@ -37,11 +38,11 @@ const PERIODS: { label: string; value: HistoryPeriod }[] = [
   { label: "Year", value: "year" },
 ]
 
-const LAYOUT_KEY = "dashboard-grid-layout-v2"
+const LAYOUT_KEY = "dashboard-grid-layout-v3"
 
+// Desktop layout: 12 columns
 // rowHeight=60, margin=[12,12]
-// h:6 = 6*60+5*12 = 420px   h:7 = 480px   h:8 = 540px   h:9 = 600px   h:10 = 660px
-const DEFAULT_LAYOUT: Layout[] = [
+const LG_LAYOUT: Layout[] = [
   { i: "live-status",      x: 0, y: 0,  w: 4, h: 8,  minW: 2, minH: 5 },
   { i: "power-flow",       x: 4, y: 0,  w: 4, h: 8,  minW: 2, minH: 5 },
   { i: "battery",          x: 8, y: 0,  w: 4, h: 8,  minW: 2, minH: 5 },
@@ -55,7 +56,28 @@ const DEFAULT_LAYOUT: Layout[] = [
   { i: "energy-costs",     x: 0, y: 33, w: 8, h: 10, minW: 3, minH: 6 },
   { i: "wall-connector",   x: 8, y: 33, w: 4, h: 5,  minW: 2, minH: 4 },
   { i: "site-details",     x: 8, y: 38, w: 4, h: 5,  minW: 2, minH: 3 },
+  { i: "charging-history", x: 0, y: 43, w: 8, h: 12, minW: 3, minH: 6 },
 ]
+
+// Mobile layout: 2 columns — single-column stacked cards
+const SM_LAYOUT: Layout[] = [
+  { i: "live-status",      x: 0, y: 0,   w: 2, h: 9  },
+  { i: "power-flow",       x: 0, y: 9,   w: 2, h: 9  },
+  { i: "battery",          x: 0, y: 18,  w: 2, h: 9  },
+  { i: "wall-connector",   x: 0, y: 27,  w: 2, h: 6  },
+  { i: "energy-history",   x: 0, y: 33,  w: 2, h: 10 },
+  { i: "energy-mix",       x: 0, y: 43,  w: 2, h: 9  },
+  { i: "solar-production", x: 0, y: 52,  w: 2, h: 9  },
+  { i: "charging-history", x: 0, y: 61,  w: 2, h: 12 },
+  { i: "weather",          x: 0, y: 73,  w: 2, h: 9  },
+  { i: "battery-flow",     x: 0, y: 82,  w: 2, h: 9  },
+  { i: "grid-interaction", x: 0, y: 91,  w: 2, h: 9  },
+  { i: "home-sources",     x: 0, y: 100, w: 2, h: 9  },
+  { i: "energy-costs",     x: 0, y: 109, w: 2, h: 11 },
+  { i: "site-details",     x: 0, y: 120, w: 2, h: 6  },
+]
+
+const DEFAULT_LAYOUTS: Layouts = { lg: LG_LAYOUT, sm: SM_LAYOUT }
 
 interface Props {
   preConfigured: boolean
@@ -70,22 +92,36 @@ export function DashboardClient({ preConfigured }: Props) {
   const [period, setPeriod] = useState<HistoryPeriod>("day")
   const [history, setHistory] = useState<CalendarHistory | null>(null)
   const [historyLoading, setHistoryLoading] = useState(false)
-  const [layout, setLayout] = useState<Layout[]>(DEFAULT_LAYOUT)
+  const [layouts, setLayouts] = useState<Layouts>(DEFAULT_LAYOUTS)
+  const [isMobile, setIsMobile] = useState(false)
 
   const { data: liveData, loading: liveLoading, error: liveError, lastUpdated, refresh } =
     useLiveData(siteId)
+
+  // Detect mobile for disabling drag on touch devices
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)")
+    setIsMobile(mq.matches)
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener("change", handler)
+    return () => mq.removeEventListener("change", handler)
+  }, [])
 
   useEffect(() => {
     const stored = localStorage.getItem(LAYOUT_KEY)
     if (stored) {
       try {
-        const parsed = JSON.parse(stored) as Layout[]
-        // Merge stored positions with any new panels from DEFAULT_LAYOUT
-        const merged = DEFAULT_LAYOUT.map((def) => {
-          const saved = parsed.find((p) => p.i === def.i)
-          return saved ? { ...def, ...saved } : def
-        })
-        setLayout(merged)
+        const parsed = JSON.parse(stored) as Layouts
+        // Merge stored breakpoint layouts with any new panels from defaults
+        const merged: Layouts = {}
+        for (const [bp, defLayout] of Object.entries(DEFAULT_LAYOUTS)) {
+          const savedBp = parsed[bp] ?? []
+          merged[bp] = defLayout.map((def) => {
+            const saved = savedBp.find((p) => p.i === def.i)
+            return saved ? { ...def, ...saved } : def
+          })
+        }
+        setLayouts(merged)
       } catch { /* use defaults */ }
     }
   }, [])
@@ -132,24 +168,23 @@ export function DashboardClient({ preConfigured }: Props) {
     if (siteId) loadHistory(period)
   }, [siteId, period, loadHistory])
 
-  const handleLayoutChange = (newLayout: Layout[]) => {
-    setLayout(newLayout)
-    localStorage.setItem(LAYOUT_KEY, JSON.stringify(newLayout))
+  const handleLayoutChange = (_current: Layout[], allLayouts: Layouts) => {
+    setLayouts(allLayouts)
+    localStorage.setItem(LAYOUT_KEY, JSON.stringify(allLayouts))
   }
 
   const siteName = siteInfo?.site_name ?? "My Site"
 
   return (
     <div className="min-h-screen bg-white dark:bg-black">
-      {/* Sticky nav — auth + live status */}
+      {/* Sticky nav */}
       <header className="sticky top-0 z-10 bg-white/90 dark:bg-black/90 backdrop-blur-sm border-b border-gray-100 dark:border-neutral-800">
-        <div className="max-w-[1600px] mx-auto px-6 py-3 flex items-center justify-between gap-4">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
             <div className="flex items-center gap-2 shrink-0">
               <Zap className="w-4 h-4 text-blue-500" />
               <span className="text-sm font-medium text-gray-500 dark:text-neutral-400">Tesla Energy</span>
             </div>
-            {/* Grid status chip in the nav — compact (badge only) */}
             <div className="hidden sm:block">
               <GridStatusBanner
                 data={liveData}
@@ -182,15 +217,15 @@ export function DashboardClient({ preConfigured }: Props) {
         </div>
       </header>
 
-      <main className="max-w-[1600px] mx-auto px-6 py-8">
+      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
         {/* Page title + filter bar */}
         <div className="flex items-start justify-between mb-4">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
             Live Data
           </h1>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-7 text-sm">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6 text-sm">
           <div className="flex items-center gap-1 cursor-default select-none">
             <span className="font-medium text-gray-400 dark:text-neutral-500">Sites</span>
             <span className="font-medium text-gray-700 dark:text-neutral-200">{siteName}</span>
@@ -236,14 +271,15 @@ export function DashboardClient({ preConfigured }: Props) {
           )}
         </div>
 
-        {/* Draggable / resizable grid */}
+        {/* Responsive draggable grid */}
         <RGL
           className="layout"
-          layout={layout}
-          cols={12}
+          layouts={layouts}
+          breakpoints={{ lg: 768, sm: 0 }}
+          cols={{ lg: 12, sm: 2 }}
           rowHeight={60}
           margin={[12, 12]}
-          isDraggable
+          isDraggable={!isMobile}
           isResizable={false}
           draggableHandle=".drag-handle"
           onLayoutChange={handleLayoutChange}
@@ -346,6 +382,10 @@ export function DashboardClient({ preConfigured }: Props) {
             <DashCard title="Site Details">
               <SiteInfoPanel siteInfo={siteInfo} siteId={siteId} loading={siteLoading} />
             </DashCard>
+          </div>
+
+          <div key="charging-history">
+            <ChargingHistoryPanel />
           </div>
         </RGL>
       </main>

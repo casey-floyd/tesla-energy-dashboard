@@ -1,4 +1,5 @@
 import NextAuth, { type NextAuthConfig } from "next-auth"
+import { writePersistedToken } from "@/lib/token-file"
 
 const TESLA_FLEET_BASE_URL =
   process.env.TESLA_FLEET_BASE_URL ?? "https://fleet-api.prd.na.vn.cloud.tesla.com"
@@ -68,6 +69,7 @@ export const config: NextAuthConfig = {
   callbacks: {
     async jwt({ token, account }) {
       if (account) {
+        if (account.refresh_token) writePersistedToken(account.refresh_token as string)
         return {
           ...token,
           accessToken: account.access_token,
@@ -78,7 +80,15 @@ export const config: NextAuthConfig = {
       if (token.expiresAt && Date.now() < (token.expiresAt as number) * 1000) {
         return token
       }
-      return await refreshTeslaToken(token as Record<string, unknown>)
+      const refreshed = await refreshTeslaToken(token as Record<string, unknown>)
+      if (
+        "refreshToken" in refreshed &&
+        refreshed.refreshToken &&
+        refreshed.refreshToken !== token.refreshToken
+      ) {
+        writePersistedToken(refreshed.refreshToken as string)
+      }
+      return refreshed
     },
     async session({ session, token }) {
       return {

@@ -211,7 +211,7 @@ export function PowerFlowDiagram({ data, loading }: Props) {
           x={battX}
           y={battY}
           icon="🔋"
-          label={`${Math.round(data.battery_percentage)}%`}
+          label={`${Math.round(data.battery_percentage ?? 0)}%`}
           value={
             batteryCharging
               ? `+${formatWatts(data.battery_power)}`

@@ -1,3 +1,5 @@
+import { readPersistedToken, writePersistedToken } from "@/lib/token-file"
+
 const FLEET_BASE_URL =
   process.env.TESLA_FLEET_BASE_URL ?? "https://fleet-api.prd.na.vn.cloud.tesla.com"
 
@@ -12,15 +14,18 @@ export function clearTokenCache(): void {
   cache = null
 }
 
+function getRefreshToken(): string | null {
+  return process.env.TESLA_REFRESH_TOKEN ?? readPersistedToken()
+}
+
 export function hasPreStoredToken(): boolean {
-  return !!process.env.TESLA_REFRESH_TOKEN
+  return !!getRefreshToken()
 }
 
 export async function getAccessToken(): Promise<string> {
-  const refreshToken = process.env.TESLA_REFRESH_TOKEN
-  if (!refreshToken) throw new Error("TESLA_REFRESH_TOKEN is not configured")
+  const refreshToken = getRefreshToken()
+  if (!refreshToken) throw new Error("No Tesla refresh token configured")
 
-  // Return cached token if still valid (with 60s buffer)
   if (cache && Date.now() < cache.expiresAt - 60_000) {
     return cache.accessToken
   }
@@ -43,6 +48,12 @@ export async function getAccessToken(): Promise<string> {
   }
 
   const data = await res.json()
+
+  // Persist rotated refresh token so next restart doesn't need re-auth
+  if (data.refresh_token && data.refresh_token !== refreshToken) {
+    writePersistedToken(data.refresh_token)
+  }
+
   cache = {
     accessToken: data.access_token,
     expiresAt: Date.now() + data.expires_in * 1000,

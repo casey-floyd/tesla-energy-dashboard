@@ -19,7 +19,7 @@ export function BatteryGauge({ data, siteInfo, loading }: Props) {
     return <div className="w-full h-full min-h-40 bg-slate-50 dark:bg-slate-800 animate-pulse rounded-2xl" />
   }
 
-  const pct = data.battery_percentage
+  const pct = data.battery_percentage ?? 0
   const radius = 52
   const circumference = 2 * Math.PI * radius
   const strokeDash = (pct / 100) * circumference * 0.75

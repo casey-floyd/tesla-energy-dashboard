@@ -2,8 +2,9 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber"
-import type { LiveStatus, WallConnector } from "@/lib/types"
+import type { ChargingSession, LiveStatus, WallConnector } from "@/lib/types"
 import { Plug, Zap } from "lucide-react"
+import { useEffect, useState } from "react"
 
 function formatWatts(w: number): string {
   if (w >= 1000) return `${(w / 1000).toFixed(1)} kW`
@@ -12,6 +13,13 @@ function formatWatts(w: number): string {
 
 function maskVin(vin: string): string {
   return vin.length >= 8 ? `${vin.slice(0, 5)}···${vin.slice(-4)}` : vin
+}
+
+function fmtDuration(startedAt: number): string {
+  const s = Math.floor((Date.now() - startedAt) / 1000)
+  const h = Math.floor(s / 3600)
+  const m = Math.floor((s % 3600) / 60)
+  return h > 0 ? `${h}h ${m}m` : `${m}m`
 }
 
 const STATE_LABELS: Record<number, string> = {
@@ -35,10 +43,25 @@ function AnimatedWatts({ watts, className }: { watts: number; className: string 
   return <span className={className}>{formatWatts(animated)}</span>
 }
 
-function ConnectorCard({ wc }: { wc: WallConnector }) {
+function ConnectorCard({
+  wc,
+  activeSession,
+}: {
+  wc: WallConnector
+  activeSession: ChargingSession | null
+}) {
+  const [elapsed, setElapsed] = useState("")
   const state = wc.wall_connector_state
   const colors = STATE_COLORS[state] ?? STATE_COLORS[0]
   const isCharging = state === 3
+
+  useEffect(() => {
+    if (!isCharging || !activeSession) return
+    const update = () => setElapsed(fmtDuration(activeSession.started_at))
+    update()
+    const iv = setInterval(update, 10_000)
+    return () => clearInterval(iv)
+  }, [isCharging, activeSession])
 
   return (
     <div className={`rounded-xl p-4 ${colors.bg} flex items-start gap-3`}>
@@ -47,7 +70,7 @@ function ConnectorCard({ wc }: { wc: WallConnector }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className={`relative flex h-2 w-2 shrink-0 ${isCharging ? "" : ""}`}>
+          <span className="relative flex h-2 w-2 shrink-0">
             {isCharging ? (
               <>
                 <span className={`animate-ping absolute inline-flex h-full w-full rounded-full ${colors.dot} opacity-75`} />
@@ -60,6 +83,9 @@ function ConnectorCard({ wc }: { wc: WallConnector }) {
           <span className={`text-sm font-semibold ${colors.text}`}>
             {STATE_LABELS[state] ?? "Unknown"}
           </span>
+          {isCharging && elapsed && (
+            <span className="text-xs text-slate-400 dark:text-neutral-500">{elapsed}</span>
+          )}
         </div>
 
         {wc.vin && (
@@ -71,6 +97,12 @@ function ConnectorCard({ wc }: { wc: WallConnector }) {
         {isCharging && wc.wall_connector_power > 0 && (
           <p className="mt-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
             <AnimatedWatts watts={wc.wall_connector_power} className="" />
+          </p>
+        )}
+
+        {isCharging && activeSession && activeSession.total_energy_wh > 0 && (
+          <p className="mt-0.5 text-xs text-slate-500 dark:text-neutral-400 tabular-nums">
+            {(activeSession.total_energy_wh / 1000).toFixed(2)} kWh this session
           </p>
         )}
       </div>
@@ -92,9 +124,36 @@ interface Props {
 }
 
 export function WallConnectorPanel({ data, loading }: Props) {
+  const [activeSessions, setActiveSessions] = useState<ChargingSession[]>([])
+
+  useEffect(() => {
+    async function fetchActive() {
+      try {
+        const res = await fetch("/api/charging/active")
+        if (!res.ok) return
+        const json = await res.json()
+        setActiveSessions(json.active ?? [])
+      } catch { /* non-fatal */ }
+    }
+    fetchActive()
+    const iv = setInterval(fetchActive, 15_000)
+    return () => clearInterval(iv)
+  }, [])
+
   const connectors = data?.wall_connectors ?? []
-  const totalPower = connectors.reduce((sum, wc) => sum + (wc.wall_connector_state === 3 ? wc.wall_connector_power : 0), 0)
+  const totalPower = connectors.reduce(
+    (sum, wc) => sum + (wc.wall_connector_state === 3 ? wc.wall_connector_power : 0),
+    0,
+  )
   const chargingCount = connectors.filter((wc) => wc.wall_connector_state === 3).length
+
+  function sessionFor(wc: WallConnector): ChargingSession | null {
+    return (
+      activeSessions.find(
+        (s) => s.wall_connector_id === wc.wall_connector_id || s.vin === wc.vin,
+      ) ?? null
+    )
+  }
 
   return (
     <Card className="border border-gray-100 dark:border-neutral-800 shadow-sm rounded-2xl h-full flex flex-col">
@@ -128,7 +187,11 @@ export function WallConnectorPanel({ data, loading }: Props) {
         ) : (
           <div className="space-y-2">
             {connectors.map((wc) => (
-              <ConnectorCard key={wc.wall_connector_id} wc={wc} />
+              <ConnectorCard
+                key={wc.wall_connector_id}
+                wc={wc}
+                activeSession={sessionFor(wc)}
+              />
             ))}
           </div>
         )}

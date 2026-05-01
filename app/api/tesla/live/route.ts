@@ -1,5 +1,6 @@
 import { resolveAccessToken } from "@/lib/api-utils"
 import { getLiveStatus } from "@/lib/tesla-api"
+import { trackLiveStatus } from "@/lib/session-tracker"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
@@ -16,6 +17,8 @@ export async function GET(request: Request) {
 
   try {
     const data = await getLiveStatus(accessToken, Number(siteId))
+    // Fire-and-forget: session tracking never blocks the live response
+    try { trackLiveStatus(data) } catch { /* non-fatal */ }
     return NextResponse.json(data)
   } catch (error) {
     return NextResponse.json(
