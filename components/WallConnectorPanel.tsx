@@ -97,10 +97,10 @@ export function WallConnectorPanel({ data, loading }: Props) {
   const chargingCount = connectors.filter((wc) => wc.wall_connector_state === 3).length
 
   return (
-    <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
-      <CardHeader className="pb-2 pt-4 px-5">
+    <Card className="border border-gray-100 dark:border-slate-800 shadow-sm rounded-2xl">
+      <CardHeader className="pb-2 pt-5 px-5">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+          <CardTitle className="text-base font-bold text-gray-900 dark:text-white">
             Wall Connector
           </CardTitle>
           {!loading && chargingCount > 0 && (

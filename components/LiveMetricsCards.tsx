@@ -1,6 +1,5 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
 import { useAnimatedNumber } from "@/hooks/useAnimatedNumber"
 import type { LiveStatus } from "@/lib/types"
 import { Battery, Home, Sun, Zap } from "lucide-react"
@@ -11,63 +10,50 @@ function formatWatts(w: number): string {
   return `${Math.round(abs)} W`
 }
 
-interface AnimatedWattsProps {
-  watts: number
-  color: string
-}
-
-function AnimatedWatts({ watts, color }: AnimatedWattsProps) {
+function AnimatedWatts({ watts, color }: { watts: number; color: string }) {
   const animated = useAnimatedNumber(Math.abs(watts))
   return (
-    <p className={`mt-0.5 text-2xl font-semibold tabular-nums ${color}`}>
-      {formatWatts(animated)}
-    </p>
+    <p className={`text-xl font-bold tabular-nums ${color}`}>{formatWatts(animated)}</p>
   )
 }
 
 function AnimatedPercent({ value, color }: { value: number; color: string }) {
   const animated = useAnimatedNumber(value)
   return (
-    <p className={`mt-0.5 text-2xl font-semibold tabular-nums ${color}`}>
-      {Math.round(animated)}%
-    </p>
+    <p className={`text-xl font-bold tabular-nums ${color}`}>{Math.round(animated)}%</p>
   )
 }
 
-interface MetricCardProps {
+interface MetricTileProps {
   icon: React.ReactNode
   label: string
   subtext?: string
-  color: string
-  bgColor: string
+  iconColor: string
+  iconBg: string
   loading?: boolean
   children: React.ReactNode
 }
 
-function MetricCard({ icon, label, subtext, color, bgColor, loading, children }: MetricCardProps) {
+function MetricTile({ icon, label, subtext, iconColor, iconBg, loading, children }: MetricTileProps) {
   return (
-    <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl">
-      <CardContent className="p-4 sm:p-5">
-        <div className="flex items-start justify-between">
-          <div className={`p-2.5 rounded-xl ${bgColor}`}>
-            <div className={`w-5 h-5 ${color}`}>{icon}</div>
-          </div>
+    <div className="rounded-xl bg-gray-50 dark:bg-slate-800 p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <div className={`p-1.5 rounded-lg ${iconBg}`}>
+          <div className={`w-4 h-4 ${iconColor}`}>{icon}</div>
         </div>
-        <div className="mt-3">
-          <p className="text-xs font-medium text-slate-400 dark:text-slate-300 uppercase tracking-wide">
-            {label}
-          </p>
-          {loading ? (
-            <div className="mt-1 h-7 w-24 bg-slate-100 dark:bg-slate-700 animate-pulse rounded-md" />
-          ) : (
-            children
-          )}
-          {subtext && !loading && (
-            <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-300">{subtext}</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+        <p className="text-xs font-semibold text-gray-400 dark:text-slate-400 uppercase tracking-wide">
+          {label}
+        </p>
+      </div>
+      {loading ? (
+        <div className="h-6 w-20 bg-gray-200 dark:bg-slate-700 animate-pulse rounded-md" />
+      ) : (
+        children
+      )}
+      {subtext && !loading && (
+        <p className="mt-0.5 text-xs text-gray-400 dark:text-slate-500">{subtext}</p>
+      )}
+    </div>
   )
 }
 
@@ -85,73 +71,73 @@ export function LiveMetricsCards({ data, loading }: Props) {
     : "—"
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-      <MetricCard
-        icon={<Sun className="w-5 h-5" />}
+    <div className="grid grid-cols-2 gap-3">
+      <MetricTile
+        icon={<Sun className="w-4 h-4" />}
         label="Solar"
         subtext="Production"
-        color="text-amber-500"
-        bgColor="bg-amber-50 dark:bg-amber-900/20"
+        iconColor="text-amber-500"
+        iconBg="bg-amber-50 dark:bg-amber-900/20"
         loading={loading}
       >
         {data ? (
           <AnimatedWatts watts={data.solar_power} color="text-amber-500" />
         ) : (
-          <p className="mt-0.5 text-2xl font-semibold text-amber-500">—</p>
+          <p className="text-xl font-bold text-amber-500">—</p>
         )}
-      </MetricCard>
+      </MetricTile>
 
-      <MetricCard
-        icon={<Battery className="w-5 h-5" />}
+      <MetricTile
+        icon={<Battery className="w-4 h-4" />}
         label="Battery"
         subtext={batteryDirection}
-        color="text-emerald-500"
-        bgColor="bg-emerald-50 dark:bg-emerald-900/20"
+        iconColor="text-emerald-500"
+        iconBg="bg-emerald-50 dark:bg-emerald-900/20"
         loading={loading}
       >
         {data ? (
           <AnimatedPercent value={data.battery_percentage} color="text-emerald-500" />
         ) : (
-          <p className="mt-0.5 text-2xl font-semibold text-emerald-500">—</p>
+          <p className="text-xl font-bold text-emerald-500">—</p>
         )}
-      </MetricCard>
+      </MetricTile>
 
-      <MetricCard
-        icon={<Home className="w-5 h-5" />}
+      <MetricTile
+        icon={<Home className="w-4 h-4" />}
         label="Home"
         subtext="Consumption"
-        color="text-sky-500"
-        bgColor="bg-sky-50 dark:bg-sky-900/20"
+        iconColor="text-blue-500"
+        iconBg="bg-blue-50 dark:bg-blue-900/20"
         loading={loading}
       >
         {data ? (
-          <AnimatedWatts watts={data.load_power} color="text-sky-500" />
+          <AnimatedWatts watts={data.load_power} color="text-blue-500" />
         ) : (
-          <p className="mt-0.5 text-2xl font-semibold text-sky-500">—</p>
+          <p className="text-xl font-bold text-blue-500">—</p>
         )}
-      </MetricCard>
+      </MetricTile>
 
-      <MetricCard
-        icon={<Zap className="w-5 h-5" />}
+      <MetricTile
+        icon={<Zap className="w-4 h-4" />}
         label="Grid"
         subtext={gridDirection}
-        color={data && data.grid_power < 0 ? "text-indigo-500" : "text-slate-500"}
-        bgColor={
+        iconColor={data && data.grid_power < 0 ? "text-indigo-500" : "text-gray-400"}
+        iconBg={
           data && data.grid_power < 0
             ? "bg-indigo-50 dark:bg-indigo-900/20"
-            : "bg-slate-50 dark:bg-slate-800"
+            : "bg-gray-100 dark:bg-slate-700"
         }
         loading={loading}
       >
         {data ? (
           <AnimatedWatts
             watts={data.grid_power}
-            color={data.grid_power < 0 ? "text-indigo-500" : "text-slate-500"}
+            color={data.grid_power < 0 ? "text-indigo-500" : "text-gray-500"}
           />
         ) : (
-          <p className="mt-0.5 text-2xl font-semibold text-slate-500">—</p>
+          <p className="text-xl font-bold text-gray-400">—</p>
         )}
-      </MetricCard>
+      </MetricTile>
     </div>
   )
 }

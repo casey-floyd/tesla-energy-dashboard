@@ -49,7 +49,7 @@ function StatCard({
   positive?: boolean
 }) {
   return (
-    <div className="flex-1 min-w-0 px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+    <div className="flex-1 min-w-0 px-3 py-3 rounded-xl bg-gray-50 dark:bg-slate-800/50">
       <p className="text-[11px] text-slate-400 dark:text-slate-500 mb-0.5">{label}</p>
       <p
         className={`text-base font-semibold tabular-nums leading-tight ${
@@ -157,7 +157,7 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
     : { fontSize: 11, paddingTop: 8 }
 
   return (
-    <Card className="border border-slate-100 dark:border-slate-800 shadow-sm rounded-2xl overflow-visible">
+    <Card className="border border-gray-100 dark:border-slate-800 shadow-sm rounded-2xl overflow-visible">
       <div style={{ perspective: "1200px" }}>
         <AnimatePresence mode="wait" initial={false}>
           {!isFlipped ? (
@@ -172,7 +172,7 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      <CardTitle className="text-base font-bold text-gray-900 dark:text-white">
                         Energy Costs
                       </CardTitle>
                       {currentPeriod && (
@@ -359,7 +359,7 @@ export function EnergyCostPanel({ entries, period, loading }: Props) {
                   >
                     <ArrowLeft className="w-4 h-4" />
                   </button>
-                  <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  <CardTitle className="text-base font-bold text-gray-900 dark:text-white">
                     Rate Settings
                   </CardTitle>
                 </div>
