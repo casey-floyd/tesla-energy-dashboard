@@ -4,6 +4,7 @@ import "react-grid-layout/css/styles.css"
 import "react-resizable/css/styles.css"
 
 import { BatteryFlowChart } from "@/components/BatteryFlowChart"
+import { SplashScreen } from "@/components/SplashScreen"
 import { BatteryGauge } from "@/components/BatteryGauge"
 import { ChargingHistoryPanel } from "@/components/ChargingHistoryPanel"
 import { EnergyCostPanel } from "@/components/EnergyCostPanel"
@@ -85,6 +86,7 @@ interface Props {
 }
 
 export function DashboardClient({ preConfigured }: Props) {
+  const [showSplash, setShowSplash] = useState(true)
   const [siteId, setSiteId] = useState<number | null>(null)
   const [siteInfo, setSiteInfo] = useState<SiteInfo | null>(null)
   const [siteLoading, setSiteLoading] = useState(true)
@@ -176,6 +178,8 @@ export function DashboardClient({ preConfigured }: Props) {
   const siteName = siteInfo?.site_name ?? "My Site"
 
   return (
+    <>
+      {showSplash && <SplashScreen onDone={() => setShowSplash(false)} />}
     <div className="min-h-screen bg-white dark:bg-black">
       {/* Sticky nav */}
       <header className="sticky top-0 z-10 bg-white/90 dark:bg-black/90 backdrop-blur-sm border-b border-gray-100 dark:border-neutral-800">
@@ -390,6 +394,7 @@ export function DashboardClient({ preConfigured }: Props) {
         </RGL>
       </main>
     </div>
+    </>
   )
 }
 
