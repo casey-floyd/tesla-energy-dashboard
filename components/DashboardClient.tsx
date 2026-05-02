@@ -23,7 +23,8 @@ import { WeatherPanel } from "@/components/WeatherPanel"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useLiveData } from "@/hooks/useLiveData"
 import type { CalendarHistory, HistoryPeriod, SiteInfo } from "@/lib/types"
-import { ChevronDown, GripHorizontal, Zap } from "lucide-react"
+import { ChevronDown, GripHorizontal, KeyRound, Zap } from "lucide-react"
+import Link from "next/link"
 import { useCallback, useEffect, useState } from "react"
 import { Responsive, WidthProvider } from "react-grid-layout"
 import type { Layout, Layouts } from "react-grid-layout"
@@ -197,6 +198,13 @@ export function DashboardClient({ }: Props) {
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href="/reauth"
+              className="flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-gray-700 dark:text-neutral-500 dark:hover:text-neutral-200 transition-colors px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10"
+            >
+              <KeyRound className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Reauthenticate</span>
+            </Link>
             <ThemeToggle />
           </div>
         </div>
@@ -247,12 +255,15 @@ export function DashboardClient({ }: Props) {
           )}
 
           {(siteError || liveError) && (
-            <div className="ml-auto flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+            <Link
+              href="/reauth"
+              className="ml-auto flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors"
+            >
               <span>⚠</span>
               <span className="underline">
-                {siteError ? "API Error" : "Live data unavailable"}
+                {siteError ? "API Error — reauthenticate" : "Live data unavailable — reauthenticate"}
               </span>
-            </div>
+            </Link>
           )}
         </div>
 
