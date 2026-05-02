@@ -1,111 +1,184 @@
 "use client"
 
 import type { LiveStatus } from "@/lib/types"
-import { motion } from "framer-motion"
+import { Battery, Home, Sun, Zap } from "lucide-react"
 
-function formatWatts(w: number): string {
-  const abs = Math.abs(w)
-  if (abs >= 1000) return `${(abs / 1000).toFixed(1)} kW`
-  return `${Math.round(abs)} W`
+const W = 300
+const H = 270
+
+// Node positions
+const SOLAR   = { x: 150, y: 48  }
+const GRID    = { x: 42,  y: 152 }
+const HOME    = { x: 258, y: 152 }
+const BATT    = { x: 150, y: 230 }
+const HUB     = { x: 150, y: 152 }
+
+// Junction dots sit between hub and each side node
+const JUNC_L  = { x: 96,  y: 152 }
+const JUNC_R  = { x: 204, y: 152 }
+
+const NODE_R = 28
+const GLOW_R = 36
+
+function fmt(w: number) {
+  const a = Math.abs(w)
+  return a >= 1000 ? `${(a / 1000).toFixed(1)} kW` : `${Math.round(a)} W`
 }
 
-interface NodeProps {
-  x: number
-  y: number
-  icon: string
-  label: string
-  value: string
-  color: string
-  bgColor: string
-  borderColor: string
+function edgePt(from: { x: number; y: number }, to: { x: number; y: number }, r: number) {
+  const dx = to.x - from.x
+  const dy = to.y - from.y
+  const d = Math.sqrt(dx * dx + dy * dy)
+  return { x: from.x + (dx / d) * r, y: from.y + (dy / d) * r }
 }
 
-function Node({ x, y, icon, label, value, bgColor, borderColor }: NodeProps) {
-  return (
-    <foreignObject x={x - 44} y={y - 44} width={88} height={88}>
-      <div
-        className={`w-full h-full rounded-2xl border-2 ${bgColor} ${borderColor} flex flex-col items-center justify-center shadow-sm`}
-      >
-        <span className="text-2xl">{icon}</span>
-        <span className="text-[10px] font-medium text-slate-400 dark:text-slate-300 mt-0.5">
-          {label}
-        </span>
-        <span className="text-[11px] font-bold text-slate-700 dark:text-white">{value}</span>
-      </div>
-    </foreignObject>
-  )
-}
+// ─── Animated flow line ────────────────────────────────────────────────────
 
-interface FlowArrowProps {
-  x1: number
-  y1: number
-  x2: number
-  y2: number
+function FlowLine({
+  from, to, active, color, reversed = false, id,
+}: {
+  from: { x: number; y: number }
+  to:   { x: number; y: number }
   active: boolean
   color: string
   reversed?: boolean
-  label?: string
-  inactiveStroke: string
-}
-
-function FlowArrow({ x1, y1, x2, y2, active, color, reversed, label, inactiveStroke }: FlowArrowProps) {
-  const mx = (x1 + x2) / 2
-  const my = (y1 + y2) / 2
+  id: string
+}) {
+  const src = reversed ? to   : from
+  const dst = reversed ? from : to
 
   if (!active) {
     return (
       <line
-        x1={x1}
-        y1={y1}
-        x2={x2}
-        y2={y2}
-        stroke={inactiveStroke}
-        strokeWidth={2}
-        strokeDasharray="4 4"
+        x1={from.x} y1={from.y} x2={to.x} y2={to.y}
+        stroke="#1e293b" strokeWidth={2}
       />
     )
   }
 
-  // One full dash+gap cycle = 18px; offset direction controls visual flow direction
-  const offsetTarget = reversed ? 18 : -18
+  return (
+    <g>
+      {/* glow halo */}
+      <line
+        x1={from.x} y1={from.y} x2={to.x} y2={to.y}
+        stroke={color} strokeWidth={8} strokeOpacity={0.12}
+      />
+      {/* base line */}
+      <line
+        x1={from.x} y1={from.y} x2={to.x} y2={to.y}
+        stroke={color} strokeWidth={1.5} strokeOpacity={0.45}
+      />
+      {/* hidden path for animateMotion */}
+      <path id={id} d={`M${src.x} ${src.y} L${dst.x} ${dst.y}`} fill="none" />
+      {/* 3 staggered particles */}
+      {([0, 0.4, 0.8] as const).map((offset) => (
+        <circle key={offset} r={3.5} fill={color} fillOpacity={0.95}>
+          <animateMotion
+            dur="1.1s"
+            repeatCount="indefinite"
+            begin={`${offset * -1.1}s`}
+          >
+            <mpath href={`#${id}`} />
+          </animateMotion>
+        </circle>
+      ))}
+    </g>
+  )
+}
+
+// ─── Circular node ─────────────────────────────────────────────────────────
+
+function Node({
+  pos, r = NODE_R, color, icon, value, sublabel, active = true,
+}: {
+  pos: { x: number; y: number }
+  r?: number
+  color: string
+  icon: React.ReactNode
+  value: string
+  sublabel?: string
+  active?: boolean
+}) {
+  const ringColor = active ? color : "#334155"
+  const iconColor = active ? color : "#475569"
 
   return (
     <g>
-      {/* Pulsing glow track */}
-      <motion.line
-        x1={x1} y1={y1} x2={x2} y2={y2}
-        stroke={color}
-        strokeWidth={7}
-        strokeLinecap="round"
-        animate={{ strokeOpacity: [0.08, 0.22, 0.08] }}
-        transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+      {/* dashed outer ring */}
+      <circle
+        cx={pos.x} cy={pos.y} r={GLOW_R}
+        fill="none"
+        stroke={ringColor}
+        strokeWidth={1}
+        strokeOpacity={active ? 0.35 : 0.15}
+        strokeDasharray="3.5 3"
       />
-      {/* Flowing wave dashes */}
-      <motion.line
-        x1={x1} y1={y1} x2={x2} y2={y2}
-        stroke={color}
-        strokeWidth={2.5}
-        strokeLinecap="round"
-        strokeDasharray="12 6"
-        animate={{ strokeDashoffset: [0, offsetTarget] }}
-        transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
+      {/* filled circle */}
+      <circle
+        cx={pos.x} cy={pos.y} r={r}
+        fill="#0f172a"
+        stroke={ringColor}
+        strokeWidth={active ? 2 : 1.5}
       />
-      {label && (
-        <text
-          x={mx}
-          y={my - 8}
-          textAnchor="middle"
-          fontSize={10}
-          fontWeight={600}
-          fill={color}
-          className="select-none"
+      {/* icon */}
+      <foreignObject
+        x={pos.x - 12} y={pos.y - 12} width={24} height={24}
+      >
+        <div
+          style={{
+            color: iconColor,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            height: "100%",
+          }}
         >
-          {label}
+          {icon}
+        </div>
+      </foreignObject>
+      {/* value below node */}
+      <text
+        x={pos.x} y={pos.y + GLOW_R + 12}
+        textAnchor="middle"
+        fill={active ? "white" : "#64748b"}
+        fontSize={11}
+        fontWeight={700}
+        fontFamily="system-ui, sans-serif"
+      >
+        {value}
+      </text>
+      {/* sublabel above node */}
+      {sublabel && (
+        <text
+          x={pos.x} y={pos.y - GLOW_R - 5}
+          textAnchor="middle"
+          fill={active ? color : "#475569"}
+          fontSize={9}
+          fontWeight={500}
+          fontFamily="system-ui, sans-serif"
+        >
+          {sublabel}
         </text>
       )}
     </g>
   )
 }
+
+// ─── Junction dot ──────────────────────────────────────────────────────────
+
+function Junction({ pos, active }: { pos: { x: number; y: number }; active: boolean }) {
+  return (
+    <circle
+      cx={pos.x} cy={pos.y} r={4}
+      fill={active ? "#1e293b" : "#0f172a"}
+      stroke={active ? "#475569" : "#334155"}
+      strokeWidth={1.5}
+    />
+  )
+}
+
+// ─── Main component ────────────────────────────────────────────────────────
 
 interface Props {
   data: LiveStatus | null
@@ -113,140 +186,153 @@ interface Props {
 }
 
 export function PowerFlowDiagram({ data, loading }: Props) {
-  const inactiveStroke = "#2a2a2a"
-
   if (loading || !data) {
     return (
       <div className="w-full h-64 flex items-center justify-center">
-        <div className="w-full h-full bg-slate-50 dark:bg-slate-800 animate-pulse rounded-2xl" />
+        <div className="w-full h-full bg-slate-800/40 animate-pulse rounded-2xl" />
       </div>
     )
   }
 
-  const solarActive = data.solar_power > 50
-  const batteryCharging = data.battery_power > 50
-  const batteryDischarging = data.battery_power < -50
-  const gridImporting = data.grid_power > 50
-  const gridExporting = data.grid_power < -50
+  const solar   = data.solar_power
+  const battery = data.battery_power      // + = charging, - = discharging
+  const grid    = data.grid_power         // + = importing, - = exporting
+  const home    = data.load_power
 
-  const W = 340
-  const H = 240
+  const solarOn      = solar > 50
+  const battCharging = battery > 50
+  const battDisch    = battery < -50
+  const gridImport   = grid > 50
+  const gridExport   = grid < -50
 
-  const sunX = 70, sunY = 60
-  const homeX = 270, homeY = 60
-  const battX = 70, battY = 180
-  const gridX = 270, gridY = 180
+  // Which hub lines are active (particle direction tracks energy flow)
+  const leftActive  = gridImport || gridExport || solarOn || battDisch
+  const rightActive = solarOn || battDisch || gridImport
+  const topActive   = solarOn
+  const bottomActive = battCharging || battDisch
+
+  // Particle direction on horizontal segments
+  // Left segment (Grid ↔ Hub): left→hub when grid imports or solar/batt flows leftward; hub→left when exporting
+  const leftReversed  = gridExport
+  const rightReversed = false  // energy always flows toward home
+  const bottomReversed = battDisch // when discharging, energy flows upward (batt → hub)
+
+  // Edge start/end for lines (trim to circle boundaries)
+  const solarEdge = edgePt(SOLAR, HUB,   NODE_R)
+  const gridEdge  = edgePt(GRID,  JUNC_L, NODE_R)
+  const homeEdge  = edgePt(HOME,  JUNC_R, NODE_R)
+  const battEdge  = edgePt(BATT,  HUB,   NODE_R)
+
+  const battLabel = battCharging
+    ? `+${fmt(battery)}`
+    : battDisch
+      ? fmt(Math.abs(battery))
+      : "Idle"
+
+  const gridLabel = gridImport
+    ? `↓ ${fmt(grid)}`
+    : gridExport
+      ? `↑ ${fmt(Math.abs(grid))}`
+      : "Idle"
 
   return (
-    <div className="w-full overflow-x-auto">
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full max-w-sm mx-auto" style={{ minWidth: 280 }}>
-        <FlowArrow
-          x1={sunX + 44}
-          y1={sunY}
-          x2={homeX - 44}
-          y2={homeY}
-          active={solarActive}
-          color="#F59E0B"
-          label={solarActive ? formatWatts(data.solar_power) : undefined}
-          inactiveStroke={inactiveStroke}
+    <div className="w-full rounded-xl overflow-hidden bg-[#060e1a] p-2">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full max-w-xs mx-auto"
+        style={{ minWidth: 240, background: "transparent" }}
+      >
+        {/* ── Horizontal line: Grid junction → Home junction ── */}
+        <FlowLine
+          id="fl-left"
+          from={gridEdge}
+          to={JUNC_L}
+          active={leftActive}
+          color={gridExport ? "#6366f1" : "#64748b"}
+          reversed={leftReversed}
         />
-        <FlowArrow
-          x1={sunX}
-          y1={sunY + 44}
-          x2={battX}
-          y2={battY - 44}
-          active={batteryCharging && solarActive}
-          color="#10B981"
-          label={batteryCharging ? formatWatts(Math.abs(data.battery_power)) : undefined}
-          inactiveStroke={inactiveStroke}
+        <FlowLine
+          id="fl-right"
+          from={JUNC_R}
+          to={homeEdge}
+          active={rightActive}
+          color="#38bdf8"
+          reversed={rightReversed}
         />
-        <FlowArrow
-          x1={battX + 44}
-          y1={battY}
-          x2={homeX - 44}
-          y2={homeY + 44}
-          active={batteryDischarging}
-          color="#10B981"
-          label={batteryDischarging ? formatWatts(Math.abs(data.battery_power)) : undefined}
+        {/* Hub to junctions */}
+        <FlowLine
+          id="fl-hub-l"
+          from={HUB}
+          to={JUNC_L}
+          active={leftActive}
+          color={gridExport ? "#6366f1" : "#64748b"}
+          reversed={leftReversed}
+        />
+        <FlowLine
+          id="fl-hub-r"
+          from={HUB}
+          to={JUNC_R}
+          active={rightActive}
+          color="#38bdf8"
           reversed={false}
-          inactiveStroke={inactiveStroke}
-        />
-        <FlowArrow
-          x1={homeX}
-          y1={homeY + 44}
-          x2={gridX}
-          y2={gridY - 44}
-          active={gridImporting || gridExporting}
-          color={gridExporting ? "#6366F1" : "#64748B"}
-          reversed={gridExporting}
-          label={
-            gridImporting || gridExporting
-              ? formatWatts(Math.abs(data.grid_power))
-              : undefined
-          }
-          inactiveStroke={inactiveStroke}
         />
 
+        {/* ── Vertical lines: Solar ↕ Hub ↕ Battery ── */}
+        <FlowLine
+          id="fl-solar"
+          from={solarEdge}
+          to={HUB}
+          active={topActive}
+          color="#f59e0b"
+          reversed={false}
+        />
+        <FlowLine
+          id="fl-batt"
+          from={battEdge}
+          to={HUB}
+          active={bottomActive}
+          color="#10b981"
+          reversed={bottomReversed}
+        />
+
+        {/* ── Junction dots ── */}
+        <Junction pos={JUNC_L} active={leftActive} />
+        <Junction pos={JUNC_R} active={rightActive} />
+
+        {/* ── Nodes (drawn on top of lines) ── */}
         <Node
-          x={sunX}
-          y={sunY}
-          icon="☀️"
-          label="Solar"
-          value={formatWatts(data.solar_power)}
-          color="#F59E0B"
-          bgColor="bg-amber-50 dark:bg-amber-900/20"
-          borderColor="border-amber-200 dark:border-amber-800"
+          pos={SOLAR}
+          color="#f59e0b"
+          icon={<Sun size={18} strokeWidth={2} />}
+          value={fmt(solar)}
+          sublabel={solarOn ? "Solar" : undefined}
+          active={solarOn}
         />
         <Node
-          x={homeX}
-          y={homeY}
-          icon="🏠"
-          label="Home"
-          value={formatWatts(data.load_power)}
-          color="#0EA5E9"
-          bgColor="bg-sky-50 dark:bg-sky-900/20"
-          borderColor="border-sky-200 dark:border-sky-800"
+          pos={GRID}
+          color={gridExport ? "#6366f1" : "#64748b"}
+          icon={<Zap size={16} strokeWidth={2} />}
+          value={gridLabel}
+          active={gridImport || gridExport}
         />
         <Node
-          x={battX}
-          y={battY}
-          icon="🔋"
-          label={`${Math.round(data.battery_percentage ?? 0)}%`}
-          value={
-            batteryCharging
-              ? `+${formatWatts(data.battery_power)}`
-              : batteryDischarging
-                ? formatWatts(data.battery_power)
-                : "Idle"
-          }
-          color="#10B981"
-          bgColor="bg-emerald-50 dark:bg-emerald-900/20"
-          borderColor="border-emerald-200 dark:border-emerald-800"
+          pos={HOME}
+          color="#38bdf8"
+          icon={<Home size={16} strokeWidth={2} />}
+          value={fmt(home)}
+          active={home > 50}
         />
         <Node
-          x={gridX}
-          y={gridY}
-          icon="⚡"
-          label="Grid"
-          value={
-            gridImporting
-              ? `↓ ${formatWatts(data.grid_power)}`
-              : gridExporting
-                ? `↑ ${formatWatts(Math.abs(data.grid_power))}`
-                : "Idle"
-          }
-          color={gridExporting ? "#6366F1" : "#64748B"}
-          bgColor={
-            gridExporting
-              ? "bg-indigo-50 dark:bg-indigo-900/20"
-              : "bg-slate-50 dark:bg-slate-800"
-          }
-          borderColor={
-            gridExporting
-              ? "border-indigo-200 dark:border-indigo-800"
-              : "border-slate-200 dark:border-slate-700"
-          }
+          pos={BATT}
+          color="#10b981"
+          icon={<Battery size={16} strokeWidth={2} />}
+          value={battLabel}
+          sublabel={`${Math.round(data.battery_percentage ?? 0)}%`}
+          active={battCharging || battDisch}
         />
+
+        {/* ── Center hub dot ── */}
+        <circle cx={HUB.x} cy={HUB.y} r={5} fill="#0f172a" stroke="#334155" strokeWidth={1.5} />
       </svg>
     </div>
   )

@@ -24,6 +24,9 @@
 .DS_Store
 *.pem
 
+# Tesla token file (contains refresh token — treat as secret, never commit)
+.tesla-token
+
 # debug
 npm-debug.log*
 yarn-debug.log*

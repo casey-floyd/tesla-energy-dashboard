@@ -1,3 +1,5 @@
+import { readPersistedToken, writePersistedToken } from "@/lib/token-file"
+
 const FLEET_BASE_URL =
   process.env.TESLA_FLEET_BASE_URL ?? "https://fleet-api.prd.na.vn.cloud.tesla.com"
 
@@ -13,11 +15,11 @@ export function clearTokenCache(): void {
 }
 
 export function hasPreStoredToken(): boolean {
-  return !!process.env.TESLA_REFRESH_TOKEN
+  return !!(process.env.TESLA_REFRESH_TOKEN ?? readPersistedToken())
 }
 
 export async function getAccessToken(): Promise<string> {
-  const refreshToken = process.env.TESLA_REFRESH_TOKEN
+  const refreshToken = process.env.TESLA_REFRESH_TOKEN ?? readPersistedToken()
   if (!refreshToken) throw new Error("No Tesla refresh token configured")
 
   if (cache && Date.now() < cache.expiresAt - 60_000) {
@@ -42,6 +44,10 @@ export async function getAccessToken(): Promise<string> {
   }
 
   const data = await res.json()
+
+  if (data.refresh_token && data.refresh_token !== refreshToken) {
+    writePersistedToken(data.refresh_token)
+  }
 
   cache = {
     accessToken: data.access_token,
