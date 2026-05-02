@@ -23,14 +23,6 @@
 # misc
 .DS_Store
 *.pem
-# Allow Tesla domain verification public key (private key stays local)
-!public/.well-known/appspecific/com.tesla.3p.public-key.pem
-
-# Tesla token file (contains refresh token — treat as secret, never commit)
-.tesla-token
-
-# SQLite session database (local/VPS only — not applicable on Vercel)
-charging.db
 
 # debug
 npm-debug.log*

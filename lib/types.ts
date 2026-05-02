@@ -110,32 +110,6 @@ export interface Product {
 
 export type HistoryPeriod = "day" | "week" | "month" | "year" | "lifetime"
 
-export interface ChargingSession {
-  id: string
-  vin: string | null
-  wall_connector_id: string | null
-  started_at: number
-  ended_at: number | null
-  peak_power_w: number
-  total_energy_wh: number
-  estimated_cost_cents: number | null
-  rate_plan: string | null
-  source: "polling" | "telemetry"
-  duration_s?: number
-}
-
-export interface ChargingTelemetryPoint {
-  ts: number
-  power_w: number
-  state: number | null
-  battery_level_pct: number | null
-  energy_wh_cumulative: number | null
-}
-
-export interface ChargingSessionDetail extends ChargingSession {
-  telemetry: ChargingTelemetryPoint[]
-}
-
 export interface WeatherData {
   temperature_2m: number
   apparent_temperature: number

@@ -6,7 +6,6 @@ import "react-resizable/css/styles.css"
 import { BatteryFlowChart } from "@/components/BatteryFlowChart"
 import { SplashScreen } from "@/components/SplashScreen"
 import { BatteryGauge } from "@/components/BatteryGauge"
-import { ChargingHistoryPanel } from "@/components/ChargingHistoryPanel"
 import { EnergyCostPanel } from "@/components/EnergyCostPanel"
 import { EnergyHistoryChart } from "@/components/EnergyHistoryChart"
 import { EnergyMixDonut } from "@/components/EnergyMixDonut"
@@ -56,7 +55,6 @@ const LG_LAYOUT: Layout[] = [
   { i: "energy-costs",     x: 0, y: 33, w: 8, h: 10, minW: 3, minH: 6 },
   { i: "wall-connector",   x: 8, y: 33, w: 4, h: 5,  minW: 2, minH: 4 },
   { i: "site-details",     x: 8, y: 38, w: 4, h: 5,  minW: 2, minH: 3 },
-  { i: "charging-history", x: 0, y: 43, w: 8, h: 12, minW: 3, minH: 6 },
 ]
 
 // Mobile layout: 2 columns — single-column stacked cards
@@ -68,7 +66,6 @@ const SM_LAYOUT: Layout[] = [
   { i: "energy-history",   x: 0, y: 33,  w: 2, h: 10 },
   { i: "energy-mix",       x: 0, y: 43,  w: 2, h: 9  },
   { i: "solar-production", x: 0, y: 52,  w: 2, h: 9  },
-  { i: "charging-history", x: 0, y: 61,  w: 2, h: 12 },
   { i: "weather",          x: 0, y: 73,  w: 2, h: 9  },
   { i: "battery-flow",     x: 0, y: 82,  w: 2, h: 9  },
   { i: "grid-interaction", x: 0, y: 91,  w: 2, h: 9  },
@@ -76,6 +73,8 @@ const SM_LAYOUT: Layout[] = [
   { i: "energy-costs",     x: 0, y: 109, w: 2, h: 11 },
   { i: "site-details",     x: 0, y: 120, w: 2, h: 6  },
 ]
+
+
 
 const DEFAULT_LAYOUTS: Layouts = { lg: LG_LAYOUT, sm: SM_LAYOUT }
 
@@ -380,9 +379,6 @@ export function DashboardClient({ }: Props) {
             </DashCard>
           </div>
 
-          <div key="charging-history">
-            <ChargingHistoryPanel />
-          </div>
         </RGL>
       </main>
     </div>
